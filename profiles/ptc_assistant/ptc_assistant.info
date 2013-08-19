@@ -25,6 +25,7 @@ dependencies[] = file
 dependencies[] = date
 dependencies[] = entity
 dependencies[] = devel
+dependencies[] = backup_migrate
 
 ; Files included with profile
 files[] = ptc_assistant.profile
