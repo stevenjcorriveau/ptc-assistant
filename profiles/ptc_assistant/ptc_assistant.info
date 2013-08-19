@@ -1,0 +1,30 @@
+name = PTC Assistant
+distribution_name = ptc_assistant
+description = Public Talk Coordinator Assistant helps schedule public talks.
+core = 7.x
+
+; Core Modules
+dependencies[] = block
+dependencies[] = color
+dependencies[] = contextual
+dependencies[] = dashboard
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = number
+dependencies[] = options
+dependencies[] = path
+dependencies[] = dblog
+dependencies[] = toolbar
+dependencies[] = overlay
+dependencies[] = field_ui
+dependencies[] = file
+
+; Non-core Modules
+dependencies[] = date
+dependencies[] = entity
+dependencies[] = devel
+
+; Files included with profile
+files[] = ptc_assistant.profile
