@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the talk module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function talk_schema() {
+	$schema = array();
+	$schema['talk'] = array(
+		'description' => 'Table for storing talk outline information',
+		'fields' => array(
+			'tid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for talks',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'outline_number' => array(
+				'type' => 'int',
+				'description' => 'Talk outline number',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+			),
+			'outline_version' => array(
+				'type' => 'char',
+				'length' => 1,
+				'not null' => TRUE,
+				'description' => 'Version of talk outline - used if talk is replaced by another with the same outline number',
+			),
+			'talk_type' => array(
+				'type' => 'varchar',
+				'length' => 128,
+				'not null' => TRUE,
+				'description' => 'Type of talk outline',
+			),
+			'language' => array(
+				'type' => 'varchar',
+				'length' => 128,
+				'not null' => TRUE,
+				'description' => 'Language of talk outline',
+			),
+			'title' => array(
+				'type' => 'varchar',
+				'length' => 256,
+				'not null' => TRUE,
+				'description' => 'Title of outline',
+			),
+			'last_given' => array(
+				'type' => 'int',
+				'description' => 'Date the last time this outline was given',
+			),
+			'prev_given' => array(
+				'type' => 'int',
+				'description' => 'Previous time this outline was given',
+			),
+		),
+		'primary key' => array('tid'),
+		'indexes' => array(
+			'tid' => array('tid'),
+		),
+	);
+	return $schema;
+}

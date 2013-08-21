@@ -1,0 +1,300 @@
+<?php
+
+function kingdom_hall_entity_info() {
+	$return = array();
+	$return['kingdom_hall'] = array(
+		'label'            => t('Kingdom Hall'),
+		'controller class' => 'KingdomHallController',
+		'base table'       => 'kingdom_hall',
+		'uri callback'     => 'kingdom_hall_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'khid',
+			'bundle' => 'kingdom_hall',
+			'label'  => 'kingdom_hall',
+		),
+		'bundle keys' => array(
+			'bundle' => 'kingdom_hall',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'kingdom_hall',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function kingdom_hall_uri($khid) {
+	return array(
+		'path' => 'kingdom_hall/' . $kingdom_hall->khid,
+	);
+}
+
+function kingdom_hall_menu() {
+	$items = array();
+	
+	/*$items['setup/congregations'] = array(
+		'title'            => 'Congregations',
+		'description'      => 'Congregation/Kingdom Hall Options',
+    'page callback'    => 'system_admin_menu_block_page',
+		'access callback'  => 'kingdom_hall_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'system.admin.inc',
+	);*/
+	$items['setup/congregations/kingdom_hall'] = array(
+		'title'            => 'Kingdom Halls',
+		'description'      => 'Edit Kingdom Halls',
+    'page callback'    => 'kingdom_hall_kingdom_halls',
+		'access callback'  => 'kingdom_hall_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'kingdom_hall.pages.inc',
+	);
+	$items['setup/congregations/kingdom_hall/add'] = array(
+		'title'            => 'Add new Kingdom Hall',
+		'page callback'    => 'kingdom_hall_add',
+		'access arguments' => array('add Kingdom Hall'),
+		'weight'           => 1,
+		'file'             => 'kingdom_hall.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+
+	$items['kingdom_hall/%kingdom_hall'] = array(
+		'title'            => 'Kingdom Hall',
+		'page callback'    => 'kingdom_hall_page_view',
+		'page arguments'   => array(1),
+		'access callback'  => 'kingdom_hall_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'kingdom_hall.pages.inc',
+		'type'             => MENU_CALLBACK,
+		'weight'           => 0,
+	);
+	/*$items['kingdom_hall/%kingdom_hall/view'] = array(
+		'title'  => 'View',
+		'type'   => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => -10,
+	);*/
+	$items['kingdom_hall/%kingdom_hall/edit'] = array(
+		'title'            => 'Edit',
+		'page callback'    => 'kingdom_hall_page_edit',
+		'page arguments'   => array(1),
+		'access callback'  => 'kingdom_hall_access',
+		'access arguments' => array('edit', 1),
+		'weight'           => 0,
+		'file'             => 'kingdom_hall.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_PAGE|MENU_CONTEXT_INLINE,
+	);
+	$items['kingdom_hall/%kingdom_hall/delete'] = array(
+		'title'            => 'Delete',
+		'page callback'    => 'drupal_get_form',
+		'page arguments'   => array('kingdom_hall_delete_confirm', 1),
+		'access callback'  => 'kingdom_hall_access',
+		'access arguments' => array('delete', 1),
+		'weight'           => 1,
+		'file'             => 'kingdom_hall.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_INLINE,
+	);
+	
+	return $items;
+}
+
+function kingdom_hall_load($khid = NULL, $reset = FALSE) {
+	$khid = isset($khid) ? array($khid) : array();
+	$conditions = array();
+	$khids = kingdom_hall_load_multiple($khid, $conditions, $reset);
+	return $khids ? reset($khids) :FALSE;
+}
+
+function kingdom_hall_load_multiple($khids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('kingdom_hall', $khids, $conditions, $reset);
+}
+
+function kingdom_hall_access($op, $kingdom_hall) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+function get_kingdom_hall_list() {
+	$result = db_select('kingdom_hall', 'kh')
+			->fields('kh', array('khid', 'kingdom_hall_name'))
+			->execute();
+			
+	$array = $result->fetchAllKeyed();
+	
+	return $array;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function kingdom_hall_block_info() {
+	$blocks = array();
+	
+  $blocks['kingdom_hall_settings'] = array(
+    'info' => t('Kingdom Hall settings'),
+		'status' => TRUE,
+    'cache' => DRUPAL_NO_CACHE,
+  );
+	
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function kingdom_hall_block_info_alter(&$blocks, $theme, $code_blocks) {
+	if (isset($blocks['kingdom_hall']['kingdom_hall_settings'])) {
+		if ($blocks['kingdom_hall']['kingdom_hall_settings']['theme'] == 'bartik') {
+			$blocks['kingdom_hall']['kingdom_hall_settings']['region'] = 'sidebar_second';
+		}
+	}
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function kingdom_hall_block_view($delta = '') {
+	$block = array();
+	
+	switch ($delta) {
+    case 'kingdom_hall_settings':
+			$form = drupal_get_form('kingdom_hall_settings_content');
+			
+			if (isset($form['buttons'])) {
+				$block['subject'] = t('Kingdom Hall settings');
+				$block['content'] = $form;
+			}
+      break;
+	}
+	
+	return $block;
+}
+
+function kingdom_hall_settings_content($form, &$form_state) {
+	module_load_include('inc', 'kingdom_hall', 'kingdom_hall.pages');
+	$path = current_path();	
+	$form = array();
+	
+	// Add submit button to all appropriate congregation paths.
+	switch ($path) {
+		case 'setup/congregations/kingdom_hall':
+			$form['buttons'] = array();
+			$form['buttons']['#weight'] = 100;
+			$form['buttons']['submit'] = array(
+				'#type'   => 'submit',
+				'#value'  => t('Save'),
+				'#weight' => 25,
+				'#submit' => array('kingdom_hall_settings_submit'),
+			);
+			break;
+	}
+	
+	// Add other form elements based on path.
+	switch ($path) {
+		case 'setup/congregations/kingdom_hall':
+			$form['kingdom_hall_list_limit'] = array(
+				'#type'          => 'textfield',
+				'#title'         => t('Kingdom Hall list limit'),
+				'#default_value' => variable_get('kingdom_hall_list_limit', 25),
+				'#size'          => 4,
+				'#weight'        => 1,
+			);
+			break;
+	}
+	
+	return $form;
+}
+
+function kingdom_hall_settings_submit($form, &$form_state) {
+	if (isset($form_state['values']['kingdom_hall_list_limit'])) {
+		variable_set('kingdom_hall_list_limit', $form_state['values']['kingdom_hall_list_limit']);
+	}
+}
+
+class KingdomHallController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+			'khid'               => '',
+			'kingdom_hall_name'  => '',
+			'active'             => 1,
+			'address'            => '',
+			'city'               => '',
+			'state'              => '',
+			'zipcode'            => '',
+			'directions'         => '',
+			'print_directions'   => 1,
+			'approx_travel_time' => '',
+			'travel_reference'   => '',
+			'is_new'             => TRUE,
+		);
+	}
+	
+	public function save($kingdom_hall) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($kingdom_hall->is_new) && $kingdom_hall->is_new) {
+				drupal_write_record('kingdom_hall', $kingdom_hall);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('kingdom_hall', $kingdom_hall, 'khid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $kingdom_hall, 'kingdom_hall');
+			$kingdom_hall->is_new = FALSE;
+			db_ignore_slave();
+			return $kingdom_hall;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('kingdom_hall', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($khids) {
+		if (!empty($khids)) {
+			$kingdom_hall = $this->load($khids, array());
+			$kingdom_hall = db_transaction();
+			
+			try{
+				db_delete('kingdom_hall')
+					->condition('khid', $khids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('kingdom_hall', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $kingdom_hall, 'kingdom_hall');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}

@@ -1,0 +1,11 @@
+name = Restriction
+description = Submodule for ptc - Allows tracking of restrictions to brothers going out.
+core = 7.x
+package = PTC
+
+dependencies[] = ptc
+
+files[] = restriction.install
+files[] = restriction.module
+files[] = restriction.pages.inc
+files[] = restriction_reason.pages.inc

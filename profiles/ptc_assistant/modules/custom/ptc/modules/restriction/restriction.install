@@ -1,0 +1,105 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the restriction module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function restriction_install() {
+  load_restriction_reasons();
+}
+
+/**
+ * Implements hook_schema().
+ */
+function restriction_schema() {
+	$schema = array();
+	$schema['restriction'] = array(
+		'description' => 'Table for storing talk outline information',
+		'fields' => array(
+			'rid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for restrictions',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'restriction_date' => array(
+				'type'           => 'int',
+				'description'    => 'Date the restriction applies to',
+			),
+			'bid'  => array(
+				'type'        => 'int',
+				'size'        => 'tiny',
+				'description' => 'Brother ID associated with this restriction',
+				'unsigned'    => TRUE,
+				'not null'    => TRUE,
+			),
+			'restriction_code' => array(
+				'type'        => 'char',
+				'length'      => 3,
+				'description' => 'Code associated with the restriction',
+				'not null'    => TRUE,
+			),
+		),
+		'primary key' => array('rid'),
+		'indexes' => array(),
+	);
+	$schema['restriction_reason'] = array(
+		'description' => 'Table for storing talk outline information',
+		'fields' => array(
+			'rid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for restriction reasons',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'restriction_code' => array(
+				'type'        => 'char',
+				'length'      => 3,
+				'description' => 'Code associated with the restriction',
+				'not null'    => TRUE,
+			),
+			'restriction_description' => array(
+				'type'        => 'varchar',
+				'length'      => 50,
+				'not null'    => TRUE,
+				'description' => 'Restriction code purpose',
+			),
+			'hard_soft_code' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether restriction is hard (cannot be overridden)(1) or soft (can be overridden)(0)',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+		),
+		'primary key' => array('rid'),
+		'indexes' => array(),
+	);
+	
+	return $schema;
+}
+
+function load_restriction_reasons() {
+	$controller = entity_get_controller('restriction_reason');
+	
+	try	{
+		$controller->save((object)array('restriction_code' => 'COV', 'restriction_description' => 'Circuit Overseer Visit', 'hard_soft_code' => 1, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'SDA', 'restriction_description' => 'Special Assembly Day', 'hard_soft_code' => 1, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'CA', 'restriction_description' => 'Circuit Assembly', 'hard_soft_code' => 1, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'BSP', 'restriction_description' => 'Bethel Speaker', 'hard_soft_code' => 0, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'DC', 'restriction_description' => 'District Convention', 'hard_soft_code' => 1, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'ASD', 'restriction_description' => 'Already Scheduled for This Day', 'hard_soft_code' => 0, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'ASM', 'restriction_description' => 'Already Scheduled for This Month', 'hard_soft_code' => 0, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'TMB', 'restriction_description' => 'Too Many Brothers for This Day', 'hard_soft_code' => 0, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'VAC', 'restriction_description' => 'Brother on Vacation This Week', 'hard_soft_code' => 1, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'BNA', 'restriction_description' => 'Brother Not Available For This Date', 'hard_soft_code' => 0, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'AHI', 'restriction_description' => 'Already Have an Incoming Speaker for This Date', 'hard_soft_code' => 0, 'is_new' => TRUE,));
+	}
+	catch (Exception $e) {
+		$transaction->rollback();
+	}
+}

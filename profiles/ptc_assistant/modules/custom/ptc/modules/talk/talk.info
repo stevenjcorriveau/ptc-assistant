@@ -1,0 +1,13 @@
+name = Talk
+description = Submodule for ptc - All processing associated with talks
+core = 7.x
+package = PTC
+
+dependencies[] = entity
+dependencies[] = date
+dependencies[] = ptc
+
+files[] = talk.install
+files[] = talk.module
+files[] = talk.pages.inc
+files[] = talk.admin.inc

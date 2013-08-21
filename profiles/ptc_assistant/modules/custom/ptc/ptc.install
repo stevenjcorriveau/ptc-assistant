@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * Implements hook_install
+ */
+ function ptc_install() {
+   theme_enable(array('adaptivetheme', 'commons_origins', 'bartik'));
+	 variable_set('theme_default', 'commons_origins');
+	 variable_set('admin_theme', 'bartik');
+	 variable_set('node_admin_theme', FALSE);
+	 
+	 // Place main-menu in menu_bar region
+	 $menu_block = array(
+		'module' => 'system',
+		'delta'  => 'main-menu',
+		'theme'  => 'commons_origins',
+		'visibility' => 0,
+		'region'     => 'menu_bar',
+		'status'     => 1,
+		'pages'      => '',
+		'title'      => '<none>',
+	 );
+	 drupal_write_record('block', $menu_block);
+ }

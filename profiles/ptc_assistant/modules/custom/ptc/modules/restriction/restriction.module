@@ -1,0 +1,374 @@
+<?php
+
+function restriction_entity_info() {
+	$return = array();
+	$return['restriction'] = array(
+		'label'            => t('Restriction'),
+		'controller class' => 'RestrictionController',
+		'base table'       => 'restriction',
+		'uri callback'     => 'restriction_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'rid',
+			'bundle' => 'restriction',
+			'label'  => 'restriction',
+		),
+		'bundle keys' => array(
+			'bundle' => 'restriction',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'restriction',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+	
+	$return['restriction_reason'] = array(
+		'label'            => t('Restriction Reason'),
+		'controller class' => 'RestrictionReasonController',
+		'base table'       => 'restriction_reason',
+		'uri callback'     => 'restriction_reason_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'rid',
+			'bundle' => 'restriction_reason',
+			'label'  => 'restriction_reason',
+		),
+		'bundle keys' => array(
+			'bundle' => 'restriction_reason',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'restriction_reason',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function restriction_uri($rid) {
+	return array(
+		'path' => 'restriction/' . $restriction->rid,
+	);
+}
+
+function restriction_reason_uri($rid) {
+	return array(
+		'path' => 'restriction_reason/' . $restriction_reason->rid,
+	);
+}
+
+function restriction_menu() {
+	$items = array();
+	
+	$items['setup/restrictions'] = array(
+		'title'            => 'Restrictions',
+		'description'      => 'Restriction Options',
+    'page callback'    => 'system_admin_menu_block_page',
+		'access callback'  => 'restriction_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'system.admin.inc',
+	);
+	$items['setup/restrictions/restriction'] = array(
+		'title'            => 'Restrictions',
+		'description'      => 'Manually enter restrictions such as vacations, etc',
+    'page callback'    => 'restriction_restrictions',
+		'access callback'  => 'restriction_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'restriction.pages.inc',
+	);
+	$items['setup/restrictions/restriction/add'] = array(
+		'title'            => 'Add new restriction',
+		'page callback'    => 'restriction_add',
+		'access arguments' => array('add restriction'),
+		'weight'           => 1,
+		'file'             => 'restriction.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+	
+	$items['setup/restrictions/restriction_reason'] = array(
+		'title'            => 'Restriction Reasons',
+		'description'      => 'Restriction Reasons Options',
+    'page callback'    => 'restriction_reason_restriction_reasons',
+		'access callback'  => 'restriction_reason_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'restriction_reason.pages.inc',
+	);
+	$items['setup/restrictions/restriction_reason/add'] = array(
+		'title'            => 'Add new restriction reason',
+		'page callback'    => 'restriction_reason_add',
+		'access arguments' => array('add restriction'),
+		'weight'           => 1,
+		'file'             => 'restriction_reason.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+
+	$items['restriction/%restriction'] = array(
+		'title'            => 'Restriction',
+		'page callback'    => 'restriction_page_view',
+		'page arguments'   => array(1),
+		'access callback'  => 'restriction_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'restriction.pages.inc',
+		'type'             => MENU_CALLBACK,
+		'weight'           => 0,
+	);
+	$items['restriction/%restriction/view'] = array(
+		'title'  => 'View',
+		'type'   => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => -10,
+	);	
+	$items['restriction/%restriction/edit'] = array(
+		'title'            => 'Edit',
+		'page callback'    => 'restriction_page_edit',
+		'page arguments'   => array(1),
+		'access callback'  => 'restriction_access',
+		'access arguments' => array('edit', 1),
+		'weight'           => 0,
+		'file'             => 'restriction.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_PAGE|MENU_CONTEXT_INLINE,
+	);
+	$items['restriction/%restriction/delete'] = array(
+		'title'            => 'Delete',
+		'page callback'    => 'drupal_get_form',
+		'page arguments'   => array('restriction_delete_confirm', 1),
+		'access callback'  => 'restriction_access',
+		'access arguments' => array('delete', 1),
+		'weight'           => 1,
+		'file'             => 'restriction.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_INLINE,
+	);
+
+	$items['restriction_reason/%rid'] = array(
+		'title'            => 'Restriction Reason',
+		'title arguments'  => array(1),
+		'page callback'    => 'restriction_reason_page_view',
+		'page arguments'   => array(1),
+		'access callback'  => 'restriction_reason_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'restriction_reason.pages.inc',
+		'type'             => MENU_CALLBACK,
+		'weight'           => 0,
+	);
+	$items['restriction_reason/%restriction_reason/view'] = array(
+		'title'  => 'View',
+		'type'   => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => -10,
+	);	
+	$items['restriction_reason/%restriction_reason/edit'] = array(
+		'title'            => 'Edit',
+		'page callback'    => 'restriction_reason_page_edit',
+		'page arguments'   => array(1),
+		'access callback'  => 'restriction_reason_access',
+		'access arguments' => array('edit', 1),
+		'weight'           => 0,
+		'file'             => 'restriction_reason.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_PAGE|MENU_CONTEXT_INLINE,
+	);
+	$items['restriction_reason/%restriction_reason/delete'] = array(
+		'title'            => 'Delete',
+		'page callback'    => 'drupal_get_form',
+		'page arguments'   => array('restriction_reason_delete_confirm', 1),
+		'access callback'  => 'restriction_reason_access',
+		'access arguments' => array('delete', 1),
+		'weight'           => 1,
+		'file'             => 'restriction_reason.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_INLINE,
+	);
+	
+	return $items;
+}
+
+function restriction_load($rid = NULL, $reset = FALSE) {
+	$rid = isset($rid) ? array($rid) : array();
+	$conditions = array();
+	$rids = restriction_load_multiple($rid, $conditions, $reset);
+	return $rids ? reset($rids) :FALSE;
+}
+
+function restriction_load_multiple($rids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('restriction', $rids, $conditions, $reset);
+}
+
+function restriction_reason_load($rid = NULL, $reset = FALSE) {
+	$rid = isset($rid) ? array($rid) : array();
+	$conditions = array();
+	$rids = restriction_reason_load_multiple($rid, $conditions, $reset);
+	return $rids ? reset($rids) :FALSE;
+}
+
+function restriction_reason_load_multiple($rids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('restriction_reason', $rids, $conditions, $reset);
+}
+
+function restriction_access($op, $restriction) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+function restriction_reason_access($op, $restriction_reason) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+class RestrictionController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+			'rid'              => '',
+			'restriction_date' => '',
+			'bid'              => '',
+			'restriction_code' => '',
+			'is_new'           => TRUE,
+		);
+	}
+	
+	public function save($restriction) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($restriction->is_new) && $restriction->is_new) {
+				drupal_write_record('restriction', $restriction);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('restriction', $restriction, 'rid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $restriction, 'restriction');
+			$restriction->is_new = FALSE;
+			db_ignore_slave();
+			return $restriction;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('restriction', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($rids) {
+		if (!empty($rids)) {
+			$restriction = $this->load($rids, array());
+			$transaction = db_transaction();
+			
+			try{
+				db_delete('restriction')
+					->condition('rid', $rids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('restriction', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $restriction, 'restriction');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}
+
+class RestrictionReasonController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+			'rid'                     => '',
+			'restriction_code'        => '',
+			'restriction_description' => '',
+			'hard_soft_code'          => '',
+			'is_new'                  => TRUE,
+		);
+	}
+	
+	public function save($restriction_reason) {
+		$transaction = db_transaction();
+		
+		try{
+			if (isset($restriction_reason->is_new) && $restriction_reason->is_new) {
+				drupal_write_record('restriction_reason', $restriction_reason);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('restriction_reason', $restriction_reason, 'rid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $restriction_reason, 'restriction_reason');
+			$restriction_reason->is_new = FALSE;
+			db_ignore_slave();
+			return $restriction_reason;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('restriction_reason', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($rids) {
+		if (!empty($rids)) {
+			$restriction_reason = $this->load($rids, array());
+			$transaction = db_transaction();
+			
+			try{
+				db_delete('restriction_reason')
+					->condition('rid', $rids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('restriction_reason', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $restriction_reason, 'restriction_reason');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+	
+}

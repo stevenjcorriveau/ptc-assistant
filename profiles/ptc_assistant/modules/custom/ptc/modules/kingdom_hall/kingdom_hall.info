@@ -1,0 +1,11 @@
+name = Kingdom Hall
+description = Submodule for ptc - Store information about Kingdom Hall locations.
+core = 7.x
+package = PTC
+
+dependencies[] = ptc
+dependencies[] = congregation
+
+files[] = kingdom_hall.install
+files[] = kingdom_hall.module
+files[] = kingdom_hall.pages.inc

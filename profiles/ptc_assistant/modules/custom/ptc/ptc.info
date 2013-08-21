@@ -1,0 +1,7 @@
+name = PTC
+description = Main module for Public Talk Assistant
+core = 7.x
+package = PTC
+files[] = ptc.install
+files[] = ptc.module
+files[] = ptc.pages.inc

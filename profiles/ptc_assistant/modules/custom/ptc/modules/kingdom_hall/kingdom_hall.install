@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the kingdom_hall module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function kingdom_hall_schema() {
+	$schema = array();
+
+	$schema['kingdom_hall'] = array(
+		'description' => 'Table for storing talk outline information',
+		'fields' => array(
+			'khid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for Kingdom Halls',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'kingdom_hall_name' => array(
+				'type'        => 'varchar',
+				'length'      => 50,
+				'not null'    => TRUE,
+				'description' => 'Identifying description for this Kingdom Hall.',
+			),
+			'active' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this Kingdom Hall is active(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+			'address' => array(
+				'type'        => 'varchar',
+				'length'      => 50,
+				'not null'    => FALSE,
+				'description' => 'Street address for this Kingdom Hall.',
+			),
+			'city' => array(
+				'type'        => 'varchar',
+				'length'      => 50,
+				'not null'    => FALSE,
+				'description' => 'City for this Kingdom Hall.',
+			),
+			'state' => array(
+				'type'        => 'char',
+				'length'      => 2,
+				'description' => 'The state that the Kingdom Hall resides in',
+				'not null'    => FALSE,
+			),
+			'zipcode' => array(
+				'type'        => 'char',
+				'length'      => 10,
+				'description' => 'The zipcode for the Kingdom Hall',
+				'not null'    => FALSE,
+			),
+			'directions' => array(
+				'type'        => 'varchar',
+				'length'      => 1000,
+				'not null'    => FALSE,
+				'description' => 'Directions for this Kingdom Hall.',
+			),
+			'print_directions' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether directions should be printed on reports(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+			'approx_travel_time' => array(
+				'type'        => 'varchar',
+				'length'      => 15,
+				'not null'    => FALSE,
+				'description' => 'The approximate time it would take to get to this Kingdom Hall.',
+			),
+			'travel_reference' => array(
+				'type'        => 'varchar',
+				'length'      => 25,
+				'not null'    => FALSE,
+				'description' => 'Reference point from which the approximate travel time is calculated.',
+			),
+		),
+		'primary key' => array('khid'),
+		'indexes' => array(),
+	);
+	
+	return $schema;
+}

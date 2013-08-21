@@ -1,0 +1,103 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function ptc_theme() {
+  return array_merge(drupal_common_theme(), array(
+    'setup_page' => array(
+      'variables' => array('content' => NULL),
+      'file' => 'ptc.pages.inc',
+    ),
+    'setup_block' => array(
+      'variables' => array('block' => NULL),
+      'file' => 'ptc.pages.inc',
+    ),
+    'setup_block_content' => array(
+      'variables' => array('content' => NULL),
+      'file' => 'ptc.pages.inc',
+    ),
+    'report_page' => array(
+      'variables' => array('content' => NULL),
+      'file' => 'ptc.pages.inc',
+    ),
+    'report_block' => array(
+      'variables' => array('block' => NULL),
+      'file' => 'ptc.pages.inc',
+    ),
+    'report_block_content' => array(
+      'variables' => array('content' => NULL),
+      'file' => 'ptc.pages.inc',
+    ),
+  ));
+}
+
+/*
+ * Implements hook_menu
+ */
+function ptc_menu() {
+	$items = array();
+	
+	// The main program setup page for Public Talk Assistant.
+	$items['setup'] = array(
+		'title'            => 'Program Setup',
+		'page callback'    => 'ptc_setup_page',
+		'access callback'  => 'ptc_access',
+		'access arguments' => array('administer ptc'),
+		'file'             => 'ptc.pages.inc',
+		'menu_name'        => 'main-menu',
+	);
+	
+	// The reports page for Public Talk Assistant.
+	$items['reports'] = array(
+		'title'            => 'Reports',
+		'page callback'    => 'ptc_report_page',
+		'access callback'  => 'ptc_access',
+		'access arguments' => array('administer ptc'),
+		'file'             => 'ptc.pages.inc',
+		'menu_name'        => 'main-menu',
+	);
+	return $items;
+}
+
+/**
+ * Implements hook_block_info_alter().
+ *
+ * We will not be using the navigation menu block so disable it. Add the main
+ * menu to the menu_bar region.
+ */
+function ptc_block_info_alter(&$blocks, $theme, $code_blocks) {
+	if ($theme == 'commons_origins') {
+		// Remove navigation menu from any regions
+		$blocks['system']['navigation']['region'] = -1;
+		
+		// Add main-menu to menu_bar region and enable
+		$blocks['system']['main-menu']['region'] = 'menu_bar';
+		$blocks['system']['main-menu']['status'] = 1;
+	}
+}
+
+/*
+ * Implements hook_permission
+ */
+function ptc_permission() {
+	return array(
+		'administer ptc' => array('title' => t('administer ptc'),),
+		'view ptc'       => array('title' => t('view mode only'),),
+	);
+}
+
+/*
+ * Implements hook_access
+ */
+function ptc_access($op) {
+	return TRUE;
+}
+
+function ptc_epoch2date($epoch) {
+  return gmdate("Y-m-d", $epoch);
+}
+
+function ptc_date2epoch($date) {
+  return strtotime($date);
+}

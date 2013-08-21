@@ -1,0 +1,606 @@
+<?php
+
+function talk_entity_info() {
+	$return = array();
+	$return['talk'] = array(
+		'label'            => t('Talk'),
+		'controller class' => 'TalkController',
+		'base table'       => 'talk',
+		'uri callback'     => 'talk_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'tid',
+			'bundle' => 'talk_type',
+			'label'  => 'title',
+		),
+		'bundle keys' => array(
+			'bundle' => 'talk_type',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array(),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	foreach (talk_types() as $type => $info) {
+		$return['talk']['bundles'][$type] = array(
+			'label' => $info->name,
+			'admin' => array(
+				'path'             => 'admin/structure/talk/manage/%talk_type',
+				'real path'        => 'admin/structure/talk/manage/' . str_replace('_', '-', $type),
+				'bundle arguments' => 4,
+				'access arguments' => array('administer talk types'),
+			),
+		);
+	}
+
+	return $return;
+}
+
+function talk_uri($tid) {
+	return array(
+		'path' => 'talk/' . $talk->tid,
+	);
+}
+
+function talk_types() {
+	$types = &drupal_static(__FUNCTION__);
+	
+	if (empty($types)) {
+		$types['public_talk']= (object)array(
+			'type' => 'public_talk',
+			'name' => t('Public Talk'),
+			'description' => t('Normal talk delivered by a brother'),
+		);
+		$types['co_theme'] = (object) array(
+			'type' => 'co_theme',
+			'name' => t('Circuit Overseer Theme'),
+			'description' => t('Theme of a Circuit Overseer\'s talk'),
+		);
+		$types['do_theme'] = (object) array(
+			'type' => 'do_theme',
+			'name' => t('District Overseer Theme'),
+			'description' => t('Theme of a District Overseer\'s talk'),
+		);
+		$types['circuit_assembly'] = (object) array(
+			'type' => 'circuit_assembly',
+			'name' => t('Circuit Assembly Theme'),
+			'description' => t('Theme of a Circuit Assembly'),
+		);
+		$types['district_convention'] = (object) array(
+			'type' => 'district_convention',
+			'name' => t('District Convention Theme'),
+			'description' => t('Theme of a District Convention'),
+		);
+		$types['special_assembly_day'] = (object) array(
+			'type' => 'special_assembly_day',
+			'name' => t('Special Assembly Day Theme'),
+			'description' => t('Theme of a Special Assembly Day'),
+		);
+	}
+	return $types;
+}
+
+function talk_menu() {
+	$items = array();
+	
+	/*
+	 * The main public talk listing page
+	 */
+	$items['setup/talk'] = array(
+		'title'            => 'Talks',
+		'description'      => 'Talk Options',
+    'page callback'    => 'system_admin_menu_block_page',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'system.admin.inc',
+	);
+	$items['setup/talk/public_talk'] = array(
+		'title'            => 'Public Talks',
+		'description'      => 'Manage public talk outlines',
+		'page callback'    => 'talk_public_talks',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+	);
+
+	/*
+	 * Callback for adding a public talk
+	 */
+	$items['setup/talk/public_talk/add'] = array(
+		'title'            => 'Add new public talk outline',
+		'page callback'    => 'talk_add',
+		'page arguments'   => array('public_talk'),
+		'access arguments' => array('add talk'),
+		'weight'           => 1,
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+	
+	/*
+	 * The main Circuit Overseer theme listing page
+	 */
+	$items['setup/talk/co_theme'] = array(
+		'title'            => 'Circuit Overseer Themes',
+		'description'      => 'Manage Circuit Overseer themes',
+		'page callback'    => 'talk_co_themes',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+	);
+
+	/*
+	 * Callback for adding a circuit overseer theme
+	 */
+	$items['setup/talk/co_theme/add'] = array(
+		'title'            => 'Add new Circuit Overseer theme',
+		'page callback'    => 'talk_add',
+		'page arguments'   => array('co_theme'),
+		'access arguments' => array('add talk'),
+		'weight'           => 1,
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+	
+	/*
+	 * The main District Overseer theme listing page
+	 */
+	$items['setup/talk/do_theme'] = array(
+		'title'            => 'District Overseer Themes',
+		'description'      => 'Manage District Overseer themes',
+		'page callback'    => 'talk_do_themes',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+	);
+
+	/*
+	 * Callback for adding a district overseer theme
+	 */
+	$items['setup/talk/do_theme/add'] = array(
+		'title'            => 'Add new District Overseer theme',
+		'page callback'    => 'talk_add',
+		'page arguments'   => array('do_theme'),
+		'access arguments' => array('add talk'),
+		'weight'           => 1,
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+	
+	$items['setup/talk/circuit_assembly'] = array(
+		'title'            => 'Circuit Assembly Themes',
+		'description'      => 'Manage Circuit Assembly themes',
+		'page callback'    => 'talk_circuit_assemblies',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+	);
+
+	$items['setup/talk/circuit_assembly/add'] = array(
+		'title'            => 'Add new Circuit Assembly theme',
+		'page callback'    => 'talk_add',
+		'page arguments'   => array('circuit_assembly'),
+		'access arguments' => array('add talk'),
+		'weight'           => 1,
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+	
+	$items['setup/talk/special_assembly_day'] = array(
+		'title'            => 'Special Assembly Day Themes',
+		'description'      => 'Manage Special Assembly Day themes',
+		'page callback'    => 'talk_special_assembly_days',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+	);
+
+	$items['setup/talk/special_assembly_day/add'] = array(
+		'title'            => 'Add new Special Assembly Day theme',
+		'page callback'    => 'talk_add',
+		'page arguments'   => array('special_assembly_day'),
+		'access arguments' => array('add talk'),
+		'weight'           => 1,
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+	
+	$items['setup/talk/district_convention'] = array(
+		'title'            => 'District Convention Themes',
+		'description'      => 'Manage District Convention themes',
+		'page callback'    => 'talk_district_conventions',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+	);
+
+	$items['setup/talk/district_convention/add'] = array(
+		'title'            => 'Add new District Convention theme',
+		'page callback'    => 'talk_add',
+		'page arguments'   => array('district_convention'),
+		'access arguments' => array('add talk'),
+		'weight'           => 1,
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+
+	/*
+	 * The callback for the talk/% menu.  This requires a function called 
+	 * talk_load which returns a $contacts object which will be the parameter 
+	 * for the title, page and access callback
+	 */
+	$items['talk/%talk'] = array(
+		'title callback'   => 'talk_page_title',
+		'title arguments'  => array(1),
+		'page callback'    => 'talk_page_view',
+		'page arguments'   => array(1),
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_CALLBACK,
+		'weight'           => 0,
+	);
+
+	/*
+	 * Default menu item for the view tab
+	 */
+	/*$items['talk/%talk/view'] = array(
+		'title'  => 'View',
+		'type'   => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => -10,
+	);*/
+	
+	/*
+	 * Callback for the edit tab
+	 */
+	$items['talk/%talk/edit'] = array(
+		'title'            => 'Edit',
+		'page callback'    => 'talk_page_edit',
+		'page arguments'   => array(1),
+		'access callback'  => 'talk_access',
+		'access arguments' => array('edit', 1),
+		'weight'           => 0,
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_PAGE|MENU_CONTEXT_INLINE,
+	);
+
+	/*
+	 * Callback for the delete tab
+	 */
+	$items['talk/%talk/delete'] = array(
+		'title'            => 'Delete',
+		'page callback'    => 'drupal_get_form',
+		'page arguments'   => array('talk_delete_confirm', 1),
+		'access callback'  => 'talk_access',
+		'access arguments' => array('delete', 1),
+		'weight'           => 1,
+		'file'             => 'talk.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_INLINE,
+	);
+
+	/*
+	 * Callbacks for talk-related reports
+	 */
+	$items['reports/talk'] = array(
+		'title'            => 'Talks',
+		'description'      => 'Talk Reports',
+    'page callback'    => 'system_admin_menu_block_page',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'system.admin.inc',
+	);
+	$items['reports/talk/last_given_date'] = array(
+		'title'            => 'Public Talk Last Given By Date',
+		'description'      => 'Displays last date given for every public talk.',
+		'page callback'    => 'talk_last_given_by_date_report',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+	);
+	$items['reports/talk/desired_talks'] = array(
+		'title'            => 'Desired Public Talks',
+		'description'      => 'Displays public talks which have not been given in a set period of time.',
+		'page callback'    => 'talk_desired_talk_report',
+		'access callback'  => 'talk_access',
+		'access arguments' => array('view talks', 1),
+		'file'             => 'talk.pages.inc',
+	);
+	
+	return $items;
+}
+
+function talk_load($tid = NULL, $reset = FALSE) {
+	$tid = isset($tid) ? array($tid) : array();
+	$conditions = array();
+	$tids = talk_load_multiple($tid, $conditions, $reset);
+	return $tids ? reset($tids) :FALSE;
+}
+
+function talk_load_multiple($tids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('talk', $tids, $conditions, $reset);
+}
+
+function talk_type_load($type) {
+	$types = talk_types();
+	$type = str_replace('-', '_', $type);
+	return isset($types[$type]) ? $types[$type] : FALSE;
+}
+
+function talk_page_title($talk) {
+	return $talk->title;
+}
+
+function talk_type_page_title($type) {
+	return t('Manage @type Talk', array('@type' => $type->name));
+}
+
+function talk_access($op, $talk) {
+	global $user;
+	
+	if ($op == 'create' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = TRUE;
+	}
+	return $access;
+}
+
+function talk_permission() {
+	return array(
+		'administer talks' => array('title' => t('administer talks'),),
+		'view talks' => array('title' => t('view talks'),),
+	);
+}
+
+function talk_forms() {
+	$forms = array();
+	if ($types = talk_types()) {
+		foreach (array_keys($types) as $type) {
+			$forms[$type . '_talk_form']['callback']='talk_form';
+		}
+	}
+	return $forms;
+}
+
+function get_next_outline_number($type) {
+	$max = db_query('
+		SELECT MAX(outline_number) 
+		FROM {talk} 
+		WHERE talk_type = :type', array(':type' => $type)
+	)->fetchField();
+	
+	$next = $max + 1;
+	return $next;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function talk_block_info() {
+	$blocks = array();
+	
+  $blocks['talk_settings'] = array(
+    'info' => t('Talk settings'),
+    'cache' => DRUPAL_NO_CACHE,
+    'region' => 'sidebar_second',
+  );
+	
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function talk_block_view($delta = '') {
+	$block = array();
+	
+	switch ($delta) {
+    case 'talk_settings':
+			$form = drupal_get_form('talk_settings_content');
+			
+			if (isset($form['buttons'])) {
+				$block['subject'] = t('Talk settings');
+				$block['content'] = $form;
+			}
+      break;
+	}
+	
+	return $block;
+}
+
+function talk_settings_content($form, &$form_state) {
+	module_load_include('inc', 'talk', 'talk.pages');
+	$path = current_path();	
+	$form = array();
+	
+	// Add submit button to all appropriate talk paths.
+	switch ($path) {
+		case 'setup/talk/public_talk':
+		case 'setup/talk/circuit_assembly':
+		case 'setup/talk/co_theme':
+		case 'setup/talk/district_convention':
+		case 'setup/talk/do_theme':
+		case 'setup/talk/special_assembly_day':	
+		case 'reports/talk/desired_talks':
+		case 'reports/talk/last_given_date':
+			$form['buttons'] = array();
+			$form['buttons']['#weight'] = 100;
+			$form['buttons']['submit'] = array(
+				'#type'   => 'submit',
+				'#value'  => t('Save'),
+				'#weight' => 25,
+				'#submit' => array('talk_settings_submit'),
+			);
+			break;
+	}
+	
+	// Add other form elements based on path.
+	switch ($path) {
+		case 'setup/talk/public_talk':
+		case 'setup/talk/circuit_assembly':
+		case 'setup/talk/co_theme':
+		case 'setup/talk/district_convention':
+		case 'setup/talk/do_theme':
+		case 'setup/talk/special_assembly_day':	
+			$form['talk_default_language'] = array(
+				'#type'          => 'select',
+				'#title'         => t('Default language'),
+				'#default_value' => variable_get('talk_default_language', 'EN'),
+				'#options'       => get_talk_language_options(),
+				'#weight'        => 1,
+			);
+			$form['talk_list_limit'] = array(
+				'#type'          => 'textfield',
+				'#title'         => t('Talk list limit'),
+				'#default_value' => variable_get('talk_list_limit', 25),
+				'#size'          => 4,
+				'#weight'        => 2,
+			);
+			break;
+			
+		case 'reports/talk/desired_talks':
+			$form['talk_desired_talks_limit'] = array(
+				'#type'          => 'textfield',
+				'#title'         => t('Desired talks list limit'),
+				'#default_value' => variable_get('talk_desired_talks_limit', 25),
+				'#size'          => 4,
+				'#weight'        => 3,
+			);
+			$form['talk_desired_talks_weeks'] = array(
+				'#type'          => 'textfield',
+				'#title'         => t('Desired talks weeks'),
+				'#default_value' => variable_get('talk_desired_talks_weeks', 52),
+				'#size'          => 4,
+				'#weight'        => 4,
+			);
+			break;
+			
+		case 'reports/talk/last_given_date':
+			$form['talk_last_given_limit'] = array(
+				'#type'          => 'textfield',
+				'#title'         => t('Last given list limit'),
+				'#default_value' => variable_get('talk_last_given_limit', 25),
+				'#size'          => 4,
+				'#weight'        => 3,
+			);
+			break;
+	}
+	
+	return $form;
+}
+
+function talk_settings_submit($form, &$form_state) {
+	if (isset($form_state['values']['talk_default_language'])) {
+		variable_set(
+			'talk_default_language', 
+			$form_state['values']['talk_default_language']
+		);
+	}
+	
+	if (isset($form_state['values']['talk_list_limit'])) {
+		variable_set(
+			'talk_list_limit', 
+			$form_state['values']['talk_list_limit']
+		);
+	}
+	
+	if (isset($form_state['values']['talk_desired_talks_limit'])) {
+		variable_set(
+			'talk_desired_talks_limit', 
+			$form_state['values']['talk_desired_talks_limit']
+		);
+	}
+	
+	if (isset($form_state['values']['talk_desired_talks_weeks'])) {
+		variable_set(
+			'talk_desired_talks_weeks', 
+			$form_state['values']['talk_desired_talks_weeks']
+		);
+	}
+	
+	if (isset($form_state['values']['talk_last_given_limit'])) {
+		variable_set(
+			'talk_last_given_limit', 
+			$form_state['values']['talk_last_given_limit']
+		);
+	}
+}
+
+class TalkController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+			'tid'             => '',
+			'outline_number'  => '',
+			'outline_version' => '',
+			'talk_type'       => $type,
+			'language'        => 'EN',
+			'title'           => '',
+			'last_given'      => '',
+			'prev_given'      => '',
+			'is_new'          => TRUE,
+		);
+	}
+	
+	public function save($talk) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($talk->is_new) && $talk->is_new) {
+				drupal_write_record('talk', $talk);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('talk', $talk, 'tid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $talk, 'talk');
+			$talk->is_new = FALSE;
+			db_ignore_slave();
+			return $talk;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('talk', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($tids) {
+		if (!empty($tids)) {
+			$talk = $this->load($tids, array());
+			$transaction = db_transaction();
+			
+			try{
+				db_delete('talk')
+					->condition('tid', $tids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('talk', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $talk, 'talk');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+	
+}
