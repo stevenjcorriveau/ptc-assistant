@@ -7,7 +7,7 @@ core = 7.x
 dependencies[] = block
 dependencies[] = color
 dependencies[] = contextual
-dependencies[] = dashboard
+;dependencies[] = dashboard
 dependencies[] = help
 dependencies[] = image
 dependencies[] = list
@@ -17,7 +17,7 @@ dependencies[] = options
 dependencies[] = path
 dependencies[] = dblog
 dependencies[] = toolbar
-dependencies[] = overlay
+;dependencies[] = overlay
 dependencies[] = field_ui
 dependencies[] = file
 
@@ -26,6 +26,13 @@ dependencies[] = date
 dependencies[] = entity
 dependencies[] = devel
 dependencies[] = backup_migrate
+
+; Custom Modules
+dependencies[] = ptc
+dependencies[] = kingdom_hall
+dependencies[] = congregation
+dependencies[] = talk
+dependencies[] = restriction
 
 ; Files included with profile
 files[] = ptc_assistant.profile

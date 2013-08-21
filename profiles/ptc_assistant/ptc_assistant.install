@@ -131,4 +131,7 @@ function ptc_assistant_install() {
     ->execute();
   variable_set('admin_theme', 'bartik');
   variable_set('node_admin_theme', '0');
+	
+	// Set color scheme
+	variable_set('commons_origins_palette', 'palette-black-green');
 }
