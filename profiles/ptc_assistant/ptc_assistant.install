@@ -14,7 +14,7 @@
 function ptc_assistant_install() {
 
   // Enable some standard blocks.
-  $default_theme = variable_get('theme_default', 'bartik');
+  $default_theme = variable_get('theme_default', 'commons_origins');
   $admin_theme = 'bartik';
   $blocks = array(
     array(
@@ -130,5 +130,5 @@ function ptc_assistant_install() {
     ->condition('name', 'bartik')
     ->execute();
   variable_set('admin_theme', 'bartik');
-  variable_set('node_admin_theme', '1');
+  variable_set('node_admin_theme', '0');
 }
