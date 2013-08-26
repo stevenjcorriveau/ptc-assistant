@@ -1,10 +1,10 @@
 
 ;----------// Theme Information
 
-  name        = Commons Origins
-  description = Copy this subtheme to get started - see the <b><a href="http://adaptivethemes.com/documentation/adaptivethemes-documentation" target="_blank" title="Adaptivethemes.com - Rocking the hardest since 2006">documentation</a></b> for guidence or the included README. Drush users can generate a new theme using the command: drush adaptivetheme. If you need help please use the <b><a href="http://drupal.org/project/issues/adaptivetheme" target="_blank">issue queue</a></b> or ask in the IRC channel: <b><a href="irc://irc.freenode.net/drupal-adaptivetheme">#drupal-adaptivetheme</a></b>.
+  name        = PTC Origins
+  description = Extension of Commons Origins
   core        = 7.x
-  base theme  = adaptivetheme
+  base theme  = commons_origins
   release     = 7.x-3.x
   engine      = phptemplate
   screenshot  = screenshot.png
@@ -116,10 +116,6 @@
 
   features[] = logo
   features[] = name
-  features[] = slogan
-  features[] = node_user_picture
-  features[] = comment_user_picture
-  features[] = comment_user_verification
   features[] = favicon
   features[] = main_menu
   features[] = secondary_menu
