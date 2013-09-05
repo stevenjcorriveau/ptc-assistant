@@ -6,6 +6,13 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function talk_install() {
+  load_talks();
+}
+
+/**
  * Implements hook_schema().
  */
 function talk_schema() {
@@ -64,4 +71,31 @@ function talk_schema() {
 		),
 	);
 	return $schema;
+}
+
+function load_talks() {
+	$controller = entity_get_controller('talk');
+	
+	try	{
+		$controller->save((object)array('outline_number' => '1', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'How Well Do You Know God?', 'last_given' => ptc_date2epoch('2006-07-30'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '2', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Will You be a Survivor of the "Last Days"?', 'last_given' => ptc_date2epoch('2010-02-07'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '3', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Serving With Jehovah\'s Unified Organization', 'last_given' => ptc_date2epoch('2008-04-27'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '4', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Evidence of God in the World Around Us', 'last_given' => ptc_date2epoch('2010-01-10'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '5', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Family Life That Warms the Heart', 'last_given' => ptc_date2epoch('2007-02-18'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '6', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'The Flood of Noah\'s Day Has Meaning for Us', 'last_given' => ptc_date2epoch('2010-08-29'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '7', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Mercy, a Dominant Quality of True Christians', 'last_given' => ptc_date2epoch('2005-12-18'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '8', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Living, Not for Self, but to Do God\'s Will', 'last_given' => ptc_date2epoch('2009-04-05'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '9', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Never Become Dull in Your Hearing', 'last_given' => ptc_date2epoch('2007-12-16'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '10', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Conducting Ourselves Honestly at All Times', 'last_given' => ptc_date2epoch('2004-03-21'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '11', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => '"No Part of the World"--in Imitation of Christ', 'last_given' => ptc_date2epoch('2009-03-22'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '12', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'Respect for Authority Is a Safeguard for You', 'last_given' => ptc_date2epoch('2005-07-10'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '13', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'A Godly View of Sex and Marriage', 'last_given' => ptc_date2epoch('2002-07-07'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '14', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'A Clean People Honors Jehovah', 'last_given' => ptc_date2epoch('2008-09-21'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		$controller->save((object)array('outline_number' => '15', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => 'As Christians, We Care About Other People', 'last_given' => ptc_date2epoch('2009-12-13'), 'prev_given' => NULL, 'is_new' => TRUE,));
+		//$controller->save((object)array('outline_number' => '', 'outline_version' => '', 'talk_type' => 'public_talk', 'language' => 'EN', 'title' => '', 'last_given' => ptc_date2epoch(''), 'prev_given' => NULL, 'is_new' => TRUE,));
+		
+	}
+	catch (Exception $e) {
+		$transaction->rollback();
+	}
 }
