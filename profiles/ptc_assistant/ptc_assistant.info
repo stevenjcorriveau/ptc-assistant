@@ -33,6 +33,7 @@ dependencies[] = kingdom_hall
 dependencies[] = congregation
 dependencies[] = talk
 dependencies[] = restriction
+dependencies[] = data_load
 
 ; Files included with profile
 files[] = ptc_assistant.profile

@@ -1,0 +1,11 @@
+<?php
+
+function data_load_load_legacy_data() {
+	$talks = module_load_include('inc', 'data_load', 'data_files/migrate.talks');
+	print_r($talks);
+	load_talk_records();
+	$khs = module_load_include('inc', 'data_load', 'data_files/migrate.kingdomHalls');
+	load_kingdom_hall_records();
+	$congs = module_load_include('inc', 'data_load', 'data_files/migrate.congregations');
+	load_congregation_records();
+}

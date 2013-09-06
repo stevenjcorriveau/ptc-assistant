@@ -134,4 +134,11 @@ function ptc_assistant_install() {
 	
 	// Set color scheme
 	variable_set('commons_origins_palette', 'palette-black-green');
+	
+	// Check if any modules implement hook_load_legacy_data and provide option
+	// to run data import during site installation.
+	
+	
+	// Run hook_load_legacy_data to allow modules to supply initial data load.
+	module_invoke_all('load_legacy_data');
 }
