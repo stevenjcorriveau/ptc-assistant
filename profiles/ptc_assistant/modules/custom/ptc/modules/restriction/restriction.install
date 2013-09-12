@@ -98,6 +98,7 @@ function load_restriction_reasons() {
 		$controller->save((object)array('restriction_code' => 'VAC', 'restriction_description' => 'Brother on Vacation This Week', 'hard_soft_code' => 1, 'is_new' => TRUE,));
 		$controller->save((object)array('restriction_code' => 'BNA', 'restriction_description' => 'Brother Not Available For This Date', 'hard_soft_code' => 0, 'is_new' => TRUE,));
 		$controller->save((object)array('restriction_code' => 'AHI', 'restriction_description' => 'Already Have an Incoming Speaker for This Date', 'hard_soft_code' => 0, 'is_new' => TRUE,));
+		$controller->save((object)array('restriction_code' => 'AM', 'restriction_description' => 'Annual Meeting', 'hard_soft_code' => 1, 'is_new' => TRUE,));
 	}
 	catch (Exception $e) {
 		$transaction->rollback();
