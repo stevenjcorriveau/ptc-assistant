@@ -1082,7 +1082,7 @@ function theme($hook, $variables = array()) {
     }
   }
 
-  // Merge in argument defaults.
+	// Merge in argument defaults.
   if (!empty($info['variables'])) {
     $variables += $info['variables'];
   }

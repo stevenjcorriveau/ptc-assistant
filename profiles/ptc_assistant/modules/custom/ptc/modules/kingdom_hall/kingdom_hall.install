@@ -4,6 +4,50 @@
  * @file
  * Install, update and uninstall functions for the kingdom_hall module.
  */
+ 
+/**
+ * Implements hook_install().
+ */
+function kingdom_hall_install() {
+  // Create and assign blocks to regions
+  $blocks = array(
+		array(
+			'module' => 'kingdom_hall',
+			'delta' => 'kingdom_hall_settings',
+			'theme' => 'commons_origins',
+			'status' => 1,
+			'weight' => -25,
+			'region' => 'sidebar_second',
+			'custom' => 0,
+			'visibility' => 0,
+			'pages' => '',
+			'title' => 'Settings',
+			'cache' => -1,
+		),
+		array(
+			'module' => 'kingdom_hall',
+			'delta' => 'kingdom_hall_congregations',
+			'theme' => 'commons_origins',
+			'status' => 1,
+			'weight' => 0,
+			'region' => 'sidebar_second',
+			'custom' => 0,
+			'visibility' => 0,
+			'pages' => 'kingdom_hall/%/edit',
+			'title' => 'Congregations that use this hall',
+			'cache' => -1,
+		),
+	);
+	
+  $query = db_insert('block')
+	         ->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'custom', 'visibility', 'pages', 'title', 'cache'));
+	
+  foreach ($blocks as $block) {
+    //$query->values($block);
+		drupal_write_record('block', $block);
+  }
+  //$query->execute();
+}
 
 /**
  * Implements hook_schema().
