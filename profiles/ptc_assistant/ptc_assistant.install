@@ -14,7 +14,7 @@
 function ptc_assistant_install() {
 
   // Enable some standard blocks.
-  $default_theme = variable_get('theme_default', 'ptc_origins');
+  $default_theme = variable_get('theme_default', 'commons_origins');
   $admin_theme = 'bartik';
   $blocks = array(
     array(
@@ -27,7 +27,6 @@ function ptc_assistant_install() {
       'pages' => '',
       'cache' => -1,
     ),
-		
     array(
       'module' => 'system',
       'delta' => 'powered-by',
@@ -49,26 +48,6 @@ function ptc_assistant_install() {
       'cache' => -1,
     ),
     array(
-      'module' => 'system',
-      'delta' => 'main',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'help',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'help',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
       'module' => 'user',
       'delta' => 'login',
       'theme' => $admin_theme,
@@ -77,7 +56,7 @@ function ptc_assistant_install() {
       'region' => 'content',
       'pages' => '',
       'cache' => -1,
-    ),		
+    ),
   );
 	
   $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
@@ -137,4 +116,43 @@ function ptc_assistant_install() {
 	
 	// Run hook_load_legacy_data to allow modules to supply initial data load.
 	module_invoke_all('load_legacy_data');
+
+  // AdaptiveTheme requires that the system theme settings form be submitted in
+	// order for its themes' settings to be properly set and the resulting css
+  // files generated.  For more background, see http://drupal.org/node/1776730.
+  module_load_include('inc', 'system', 'system.admin');
+  foreach (array('adaptivetheme', 'commons_origins') as $theme_name) {
+    $form_state = form_state_defaults();
+    $form_state['build_info']['args'][0] = $theme_name;
+		
+		// Provide theme appearance settings to be saved. *Note* Attempting this creates two 'an illegal choice has been detected' error msgs
+    /*$form_state['values'] = array(
+			'global_default_layout'    => 'smartphone-portrait',
+			'bigscreen_layout'         => 'three_col_grail',
+			'bigscreen_sidebar_first'  => 150,
+			'bigscreen_sidebar_second' => 150,
+			'bigscreen_set_max_width'  => 1,
+			'bigscreen_max_width'      => 1040,
+			'tablet_landscape_layout'         => 'three_col_grail',
+			'tablet_landscape_sidebar_first'  => 20,
+			'tablet_landscape_sidebar_second' => 20,
+			'tablet_portrait_layout'          => 'one_col_vert',
+			'smartphone_landscape_layout'         => 'one_col_vert',
+			'smartphone_landscape_sidebar_first'  => 50,
+			'smartphone_landscape_sidebar_second' => 50,
+			'enable_extensions'        => 0,
+			'enable_apple_touch_icons' => 0,
+			//'apple_touch_icon_path_l'  => 
+			//'apple_touch_icon_path_m'  => 
+			//'apple_touch_icon_path_h'  => 
+			'enable_markup_overides'   => 0,
+			//'global_gutter_width'      => 
+			'global_files_path'        => 'public_files',
+			'custom_files_path'        => '',
+			'update_status_module'     => 0,
+		);*/
+		$form_state['values'] = array();
+		
+    drupal_form_submit('system_theme_settings', $form_state);
+  }
 }
