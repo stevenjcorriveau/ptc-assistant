@@ -145,7 +145,7 @@ function get_kingdom_hall_list() {
 /**
  * Implements hook_block_info().
  */
-function kingdom_hall_block_info() {
+/*function kingdom_hall_block_info() {
 	$blocks = array();
 	
   $blocks['kingdom_hall_settings'] = array(
@@ -153,20 +153,25 @@ function kingdom_hall_block_info() {
 		'status' => TRUE,
     'cache' => DRUPAL_NO_CACHE,
   );
+	$blocks['kingdom_hall_congregations'] = array(
+    'info' => t('Congregations that use this Kingdom Hall'),
+		'status' => TRUE,
+    'cache' => DRUPAL_NO_CACHE,
+  );
 	
   return $blocks;
-}
+}*/
 
 /**
  * Implements hook_block_info_alter().
  */
-function kingdom_hall_block_info_alter(&$blocks, $theme, $code_blocks) {
+/*function kingdom_hall_block_info_alter(&$blocks, $theme, $code_blocks) {
 	if (isset($blocks['kingdom_hall']['kingdom_hall_settings'])) {
 		if ($blocks['kingdom_hall']['kingdom_hall_settings']['theme'] == 'bartik') {
 			$blocks['kingdom_hall']['kingdom_hall_settings']['region'] = 'sidebar_second';
 		}
 	}
-}
+}*/
 
 /**
  * Implements hook_block_view().
@@ -183,6 +188,15 @@ function kingdom_hall_block_view($delta = '') {
 				$block['content'] = $form;
 			}
       break;
+    case 'kingdom_hall_congregations':
+			$path = current_path();	
+			$pattern = '#kingdom_hall/\d+/edit#';
+			
+			if (preg_match($pattern, $path)) {
+				$block['subject'] = t('Congregations using this hall');
+				$block['content'] = drupal_get_form('kingdom_hall_congregations_content');
+			}
+			break;
 	}
 	
 	return $block;
@@ -219,6 +233,35 @@ function kingdom_hall_settings_content($form, &$form_state) {
 			);
 			break;
 	}
+	
+	return $form;
+}
+
+function kingdom_hall_congregations_content($form, &$form_state) {
+	//$current_kh = arg(1);
+	$form = array();
+	
+	$query = db_select('congregation', 'c')
+					 ->fields('c', array('congregation_name'))
+					 //->condition('c.khid', $current_kh, '=')
+					 ->condition('c.khid', 1, '=')
+					 ->orderBy('c.congregation_name', 'ASC');
+	
+	$results = $query->execute();
+	
+	$content = '<ul>';
+	
+	foreach ($results as $congregation) {
+		$content .= '<li>' . $congregation->congregation_name . '</li>';
+	}
+	
+	$content .= '</ul>';
+	
+	$form['congregation_list'] = array(
+		'#type' => 'markup',
+		'#title' => 'Congregations using this hall',
+		'#markup' => $content,
+	);
 	
 	return $form;
 }

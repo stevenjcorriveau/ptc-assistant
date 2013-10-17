@@ -1851,7 +1851,7 @@ function install_configure_form_validate($form, &$form_state) {
  */
 function install_configure_form_submit($form, &$form_state) {
   global $user;
-
+	
   variable_set('site_name', $form_state['values']['site_name']);
   variable_set('site_mail', $form_state['values']['site_mail']);
   variable_set('date_default_timezone', $form_state['values']['date_default_timezone']);
