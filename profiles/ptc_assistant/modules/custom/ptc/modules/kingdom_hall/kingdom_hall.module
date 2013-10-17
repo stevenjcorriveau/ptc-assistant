@@ -207,13 +207,12 @@ function kingdom_hall_settings_content($form, &$form_state) {
 }
 
 function kingdom_hall_congregations_content($form, &$form_state) {
-	//$current_kh = arg(1);
+	$current_kh = arg(1);
 	$form = array();
 	
 	$query = db_select('congregation', 'c')
 					 ->fields('c', array('congregation_name'))
-					 //->condition('c.khid', $current_kh, '=')
-					 ->condition('c.khid', 1, '=')
+					 ->condition('c.khid', $current_kh, '=')
 					 ->orderBy('c.congregation_name', 'ASC');
 	
 	$results = $query->execute();
