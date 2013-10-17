@@ -143,37 +143,6 @@ function get_kingdom_hall_list() {
 }
 
 /**
- * Implements hook_block_info().
- */
-/*function kingdom_hall_block_info() {
-	$blocks = array();
-	
-  $blocks['kingdom_hall_settings'] = array(
-    'info' => t('Kingdom Hall settings'),
-		'status' => TRUE,
-    'cache' => DRUPAL_NO_CACHE,
-  );
-	$blocks['kingdom_hall_congregations'] = array(
-    'info' => t('Congregations that use this Kingdom Hall'),
-		'status' => TRUE,
-    'cache' => DRUPAL_NO_CACHE,
-  );
-	
-  return $blocks;
-}*/
-
-/**
- * Implements hook_block_info_alter().
- */
-/*function kingdom_hall_block_info_alter(&$blocks, $theme, $code_blocks) {
-	if (isset($blocks['kingdom_hall']['kingdom_hall_settings'])) {
-		if ($blocks['kingdom_hall']['kingdom_hall_settings']['theme'] == 'bartik') {
-			$blocks['kingdom_hall']['kingdom_hall_settings']['region'] = 'sidebar_second';
-		}
-	}
-}*/
-
-/**
  * Implements hook_block_view().
  */
 function kingdom_hall_block_view($delta = '') {

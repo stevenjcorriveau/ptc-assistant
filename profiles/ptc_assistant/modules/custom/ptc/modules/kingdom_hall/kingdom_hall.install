@@ -46,7 +46,7 @@ function kingdom_hall_install() {
     //$query->values($block);
 		drupal_write_record('block', $block);
   }
-  //$query->execute();
+  $query->execute();
 }
 
 /**
