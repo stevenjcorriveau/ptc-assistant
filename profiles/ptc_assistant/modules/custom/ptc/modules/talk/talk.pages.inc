@@ -475,6 +475,13 @@ function get_outline_version_options() {
 	);
 }
 
+/*
+ * Return a list of available public_talks to be displayed in a drop-down.
+ */
+function get_talk_outlines_options() {
+
+}
+
 function talk_form_validate($form, &$form_state) {
 	$talk = $form_state['talk'];
 }
