@@ -12,7 +12,7 @@ function congregation_schema() {
 	$schema = array();
 	
 	$schema['congregation'] = array(
-		'description' => 'Table for storing talk outline information',
+		'description' => 'Table for storing congregation information',
 		'fields' => array(
 			'cid' => array(
 				'type' => 'serial',

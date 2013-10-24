@@ -56,7 +56,7 @@ function kingdom_hall_schema() {
 	$schema = array();
 
 	$schema['kingdom_hall'] = array(
-		'description' => 'Table for storing talk outline information',
+		'description' => 'Table for storing kingdom hall information',
 		'fields' => array(
 			'khid' => array(
 				'type' => 'serial',
