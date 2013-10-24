@@ -1,0 +1,10 @@
+name = Meeting Time
+description = Submodule for ptc - Store information about meeting times for congregations.
+core = 7.x
+package = PTC
+
+dependencies[] = ptc
+dependencies[] = congregation
+
+files[] = meeting_time.install
+files[] = meeting_time.module

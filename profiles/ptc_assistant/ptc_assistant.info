@@ -31,6 +31,7 @@ dependencies[] = backup_migrate
 dependencies[] = ptc
 dependencies[] = kingdom_hall
 dependencies[] = congregation
+dependencies[] = meeting_time
 dependencies[] = talk
 dependencies[] = restriction
 dependencies[] = data_load

@@ -1,0 +1,261 @@
+<?php
+
+function meeting_time_entity_info() {
+	$return = array();
+	$return['meeting_time'] = array(
+		'label'            => t('Meeting Time'),
+		'controller class' => 'MeetingTimeController',
+		'base table'       => 'meeting_time',
+		'uri callback'     => 'meeting_time_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'cid',
+			'bundle' => 'meeting_time',
+			'label'  => 'meeting_time',
+		),
+		'bundle keys' => array(
+			'bundle' => 'meeting_time',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'meeting_time',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function meeting_time_uri($mtid) {
+	return array(
+		'path' => 'meeting_time/' . $meeting_time->mtid,
+	);
+}
+
+function meeting_time_menu() {
+	$items = array();
+	
+	/*$items['setup/congregations'] = array(
+		'title'            => 'Congregations',
+		'description'      => 'Congregation/Kingdom Hall Options',
+    'page callback'    => 'system_admin_menu_block_page',
+		'access callback'  => 'kingdom_hall_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'system.admin.inc',
+	);
+	$items['setup/congregations/congregation'] = array(
+		'title'            => 'Congregations',
+		'description'      => 'Edit congregations',
+    'page callback'    => 'congregation_congregations',
+		'access callback'  => 'congregation_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'congregation.pages.inc',
+	);
+	$items['setup/congregations/congregation/add'] = array(
+		'title'            => 'Add new congregation',
+		'page callback'    => 'congregation_add',
+		'access arguments' => array('add congregation'),
+		'weight'           => 1,
+		'file'             => 'congregation.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+
+	$items['congregation/%congregation'] = array(
+		'title'            => 'Congregation',
+		'page callback'    => 'congregation_page_view',
+		'page arguments'   => array(1),
+		'access callback'  => 'congregation_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'congregation.pages.inc',
+		'type'             => MENU_CALLBACK,
+		'weight'           => 0,
+	);
+	$items['congregation/%congregation/view'] = array(
+		'title'  => 'View',
+		'type'   => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => -10,
+	);
+	$items['congregation/%congregation/edit'] = array(
+		'title'            => 'Edit',
+		'page callback'    => 'congregation_page_edit',
+		'page arguments'   => array(1),
+		'access callback'  => 'congregation_access',
+		'access arguments' => array('edit', 1),
+		'weight'           => 0,
+		'file'             => 'congregation.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_PAGE|MENU_CONTEXT_INLINE,
+	);
+	$items['congregation/%congregation/delete'] = array(
+		'title'            => 'Delete',
+		'page callback'    => 'drupal_get_form',
+		'page arguments'   => array('congregation_delete_confirm', 1),
+		'access callback'  => 'congregation_access',
+		'access arguments' => array('delete', 1),
+		'weight'           => 1,
+		'file'             => 'congregation.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_INLINE,
+	);*/
+	
+	return $items;
+}
+
+function meeting_time_load($mtid = NULL, $reset = FALSE) {
+	$mtid = isset($mtid) ? array($mtid) : array();
+	$conditions = array();
+	$mtids = congregation_load_multiple($mtid, $conditions, $reset);
+	return $mtids ? reset($mtids) :FALSE;
+}
+
+function meeting_time_load_multiple($mtids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('congregation', $mtids, $conditions, $reset);
+}
+
+function meeting_time_access($op, $meeting_time) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer congregations', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+/*
+ * Returns the time of the public talk.
+ */
+function get_current_meeting_time($cong) {
+
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function meeting_time_block_view($delta = '') {
+	$block = array();
+	
+	switch ($delta) {
+    case 'meeting_times_listing':
+			$form = meeting_times_listing_content();
+			
+			$block['subject'] = t('Meeting Times');
+			$block['content'] = $form;
+      break;
+	}
+	
+	return $block;
+}
+
+/*
+ * Provide a form to list all meeting times for this congregation and allow the
+ * editing of meeting times.
+ */
+function meeting_times_listing_content() {
+	$current_cong = arg(1);
+	
+	$query = db_select('meeting_time', 'mt')
+					 ->fields('mt', array('mtid', 'time_code', 'meeting_time'))
+					 ->condition('mt.cid', $current_cong, '=')
+					 ->orderBy('mt.time_code', 'ASC');
+	
+	$results = $query->execute();
+	
+	$rows = array();
+	
+	// TODO:  Need to add an edit button to each row and an add button to the bottom of the table
+	foreach ($results as $times) {
+	  $rows[] = array(
+			'data' => array(
+				$times->time_code,
+			  $times->meeting_time,
+				l('edit', 'meeting_time/' . $times->mtid . '/edit'),
+			)
+		);
+	}
+
+	//Theme the html table
+	$html = theme('table', 
+		array(
+			'header' => array(),
+			'rows' => $rows,
+			'sticky' => TRUE,
+			'empty' => 'No Meeting Times created...',
+		)
+	);
+	
+	return $html;
+}
+
+class MeetingTimeController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+			'mtid'         => '',
+			'cid'          => '',
+			'time_code'    => '',
+			'meeting_time' => '',
+			'is_new'       => TRUE,
+		);
+	}
+	
+	public function save($meeting_time) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($meeting_time->is_new) && $meeting_time->is_new) {
+				drupal_write_record('meeting_time', $meeting_time);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('meeting_time', $meeting_time, 'mtid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $meeting_time, 'meeting_time');
+			$meeting_time->is_new = FALSE;
+			db_ignore_slave();
+			return $meeting_time;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('meeting_time', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($mtids) {
+		if (!empty($mtids)) {
+			$meeting_time = $this->load($mtids, array());
+			$meeting_time = db_transaction();
+			
+			try{
+				db_delete('meeting_time')
+					->condition('mtid', $mtids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('meeting_time', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $meeting_time, 'meeting_time');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}

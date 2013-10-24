@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the meeting_time module.
+ */
+ 
+/**
+ * Implements hook_install().
+ */
+function meeting_time_install() {
+  // Create and assign blocks to regions
+  $blocks = array(
+		array(
+			'module' => 'meeting_time',
+			'delta' => 'meeting_times_listing',
+			'theme' => 'commons_origins',
+			'status' => 1,
+			'weight' => -25,
+			'region' => 'sidebar_second',
+			'custom' => 0,
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => 'congregation/*/edit',
+			'title' => 'Meeting Times',
+			'cache' => -1,
+		),
+	);
+	
+  $query = db_insert('block')
+	         ->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'custom', 'visibility', 'pages', 'title', 'cache'));
+	
+  foreach ($blocks as $block) {
+		drupal_write_record('block', $block);
+  }
+  $query->execute();
+}
+
+/**
+ * Implements hook_schema().
+ */
+function meeting_time_schema() {
+	$schema = array();
+	
+	$schema['meeting_time'] = array(
+		'description' => 'Table for storing meeting time information',
+		'fields' => array(
+			'mtid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for meeting times',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'cid' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'ID of the congregation',
+        'not null'    => FALSE,
+			),
+			'time_code' => array(
+				'type'        => 'char',
+				'length'      => 4,
+				'not null'    => FALSE,
+				'description' => 'Either the year this meeting time applies to or ALL for all years',
+			),
+			'meeting_time' => array(
+				'type'        => 'char',
+				'length'      => 7,
+				'not null'    => FALSE,
+				'description' => 'Time of the public talk',
+			),
+		),
+		'primary key' => array('mtid'),
+		'indexes' => array(),
+	);
+	
+	return $schema;
+}
