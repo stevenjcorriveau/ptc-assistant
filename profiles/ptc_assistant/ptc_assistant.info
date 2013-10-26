@@ -16,12 +16,13 @@ dependencies[] = number
 dependencies[] = options
 dependencies[] = path
 dependencies[] = dblog
-dependencies[] = toolbar
+;dependencies[] = toolbar
 ;dependencies[] = overlay
 dependencies[] = field_ui
 dependencies[] = file
 
 ; Non-core Modules
+dependencies[] = admin_menu
 dependencies[] = date
 dependencies[] = entity
 dependencies[] = devel
