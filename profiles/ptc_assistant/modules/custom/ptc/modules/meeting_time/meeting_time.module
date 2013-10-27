@@ -9,7 +9,7 @@ function meeting_time_entity_info() {
 		'uri callback'     => 'meeting_time_uri',
 		'fieldable'        => FALSE,
 		'entity keys'      => array(
-			'id'     => 'cid',
+			'id'     => 'mtid',
 			'bundle' => 'meeting_time',
 			'label'  => 'meeting_time',
 		),
@@ -23,10 +23,10 @@ function meeting_time_entity_info() {
 				'label' => t('Full content'),
 				'custom settings' => FALSE,
 			),
+			),
 			'teaser' => array(
 				'label' => t('Teaser'),
 				'custom settings' => FALSE,
-			),
 		),
 	);
 
@@ -42,68 +42,37 @@ function meeting_time_uri($mtid) {
 function meeting_time_menu() {
 	$items = array();
 	
-	/*$items['setup/congregations'] = array(
-		'title'            => 'Congregations',
-		'description'      => 'Congregation/Kingdom Hall Options',
-    'page callback'    => 'system_admin_menu_block_page',
-		'access callback'  => 'kingdom_hall_access',
-		'access arguments' => array('view', 1),
-		'file'             => 'system.admin.inc',
-	);
-	$items['setup/congregations/congregation'] = array(
-		'title'            => 'Congregations',
-		'description'      => 'Edit congregations',
-    'page callback'    => 'congregation_congregations',
-		'access callback'  => 'congregation_access',
-		'access arguments' => array('view', 1),
-		'file'             => 'congregation.pages.inc',
-	);
-	$items['setup/congregations/congregation/add'] = array(
-		'title'            => 'Add new congregation',
-		'page callback'    => 'congregation_add',
+	$items['meeting_time/add/%'] = array(
+		'title'            => 'Add new meeting time',
+		'page callback'    => 'meeting_time_add',
 		'access arguments' => array('add congregation'),
 		'weight'           => 1,
-		'file'             => 'congregation.pages.inc',
+		'file'             => 'meeting_time.pages.inc',
 		'type'             => MENU_LOCAL_ACTION,
 	);
-
-	$items['congregation/%congregation'] = array(
-		'title'            => 'Congregation',
-		'page callback'    => 'congregation_page_view',
-		'page arguments'   => array(1),
-		'access callback'  => 'congregation_access',
-		'access arguments' => array('view', 1),
-		'file'             => 'congregation.pages.inc',
-		'type'             => MENU_CALLBACK,
-		'weight'           => 0,
-	);
-	$items['congregation/%congregation/view'] = array(
-		'title'  => 'View',
-		'type'   => MENU_DEFAULT_LOCAL_TASK,
-		'weight' => -10,
-	);
-	$items['congregation/%congregation/edit'] = array(
+	$items['meeting_time/%meeting_time/edit'] = array(
 		'title'            => 'Edit',
-		'page callback'    => 'congregation_page_edit',
+		'page callback'    => 'meeting_time_page_edit',
 		'page arguments'   => array(1),
 		'access callback'  => 'congregation_access',
 		'access arguments' => array('edit', 1),
 		'weight'           => 0,
-		'file'             => 'congregation.pages.inc',
-		'type'             => MENU_LOCAL_TASK,
+		'file'             => 'meeting_time.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+		//'type'             => MENU_LOCAL_TASK,
 		'context'          => MENU_CONTEXT_PAGE|MENU_CONTEXT_INLINE,
 	);
-	$items['congregation/%congregation/delete'] = array(
+	$items['meeting_time/%meeting_time/delete'] = array(
 		'title'            => 'Delete',
 		'page callback'    => 'drupal_get_form',
-		'page arguments'   => array('congregation_delete_confirm', 1),
+		'page arguments'   => array('meeting_time_delete_confirm', 1),
 		'access callback'  => 'congregation_access',
 		'access arguments' => array('delete', 1),
 		'weight'           => 1,
-		'file'             => 'congregation.pages.inc',
+		'file'             => 'meeting_time.pages.inc',
 		'type'             => MENU_LOCAL_TASK,
 		'context'          => MENU_CONTEXT_INLINE,
-	);*/
+	);
 	
 	return $items;
 }
@@ -111,12 +80,12 @@ function meeting_time_menu() {
 function meeting_time_load($mtid = NULL, $reset = FALSE) {
 	$mtid = isset($mtid) ? array($mtid) : array();
 	$conditions = array();
-	$mtids = congregation_load_multiple($mtid, $conditions, $reset);
+	$mtids = meeting_time_load_multiple($mtid, $conditions, $reset);
 	return $mtids ? reset($mtids) :FALSE;
 }
 
 function meeting_time_load_multiple($mtids = array(), $conditions = array(), $reset = FALSE) {
-	return entity_load('congregation', $mtids, $conditions, $reset);
+	return entity_load('meeting_time', $mtids, $conditions, $reset);
 }
 
 function meeting_time_access($op, $meeting_time) {
@@ -193,6 +162,8 @@ function meeting_times_listing_content() {
 			'empty' => 'No Meeting Times created...',
 		)
 	);
+	
+	$html .= '<div><a href="/meeting_time/add/' . $current_cong . '">Add meeting time</div>';
 	
 	return $html;
 }
