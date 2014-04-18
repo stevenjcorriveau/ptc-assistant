@@ -14,8 +14,8 @@
 function ptc_assistant_install() {
 
   // Enable some standard blocks.
-  $default_theme = variable_get('theme_default', 'commons_origins');
-  $admin_theme = 'bartik';
+  $default_theme = variable_get('theme_default', 'garland');
+  $admin_theme = 'garland';
   $blocks = array(
     array(
       'module' => 'system',
@@ -106,13 +106,13 @@ function ptc_assistant_install() {
   db_update('system')
     ->fields(array('status' => 1))
     ->condition('type', 'theme')
-    ->condition('name', 'bartik')
+    ->condition('name', 'garland')
     ->execute();
-  variable_set('admin_theme', 'bartik');
+  variable_set('admin_theme', 'garland');
   variable_set('node_admin_theme', '0');
 	
 	// Set color scheme
-	variable_set('commons_origins_palette', 'palette-black-green');
+	//variable_set('commons_origins_palette', 'palette-black-green');
 	
 	// Run hook_load_legacy_data to allow modules to supply initial data load.
 	module_invoke_all('load_legacy_data');
