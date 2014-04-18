@@ -79,15 +79,16 @@ function restriction_menu() {
 	$items['setup/restrictions'] = array(
 		'title'            => 'Restrictions',
 		'description'      => 'Restriction Options',
-    'page callback'    => 'system_admin_menu_block_page',
+		'page callback'    => 'system_admin_menu_block_page',
 		'access callback'  => 'restriction_access',
 		'access arguments' => array('view', 1),
 		'file'             => 'system.admin.inc',
+		'file path'        => drupal_get_path('module', 'system'),
 	);
 	$items['setup/restrictions/restriction'] = array(
 		'title'            => 'Restrictions',
 		'description'      => 'Manually enter restrictions such as vacations, etc',
-    'page callback'    => 'restriction_restrictions',
+		'page callback'    => 'restriction_restrictions',
 		'access callback'  => 'restriction_access',
 		'access arguments' => array('view', 1),
 		'file'             => 'restriction.pages.inc',
@@ -104,7 +105,7 @@ function restriction_menu() {
 	$items['setup/restrictions/restriction_reason'] = array(
 		'title'            => 'Restriction Reasons',
 		'description'      => 'Restriction Reasons Options',
-    'page callback'    => 'restriction_reason_restriction_reasons',
+		'page callback'    => 'restriction_reason_restriction_reasons',
 		'access callback'  => 'restriction_reason_access',
 		'access arguments' => array('view', 1),
 		'file'             => 'restriction_reason.pages.inc',

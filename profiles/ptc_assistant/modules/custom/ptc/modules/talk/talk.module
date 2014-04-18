@@ -98,10 +98,11 @@ function talk_menu() {
 	$items['setup/talk'] = array(
 		'title'            => 'Talks',
 		'description'      => 'Talk Options',
-    'page callback'    => 'system_admin_menu_block_page',
+		'page callback'    => 'system_admin_menu_block_page',
 		'access callback'  => 'talk_access',
 		'access arguments' => array('view talks', 1),
 		'file'             => 'system.admin.inc',
+		'file path'        => drupal_get_path('module', 'system'),
 	);
 	$items['setup/talk/public_talk'] = array(
 		'title'            => 'Public Talks',
@@ -294,10 +295,11 @@ function talk_menu() {
 	$items['reports/talk'] = array(
 		'title'            => 'Talks',
 		'description'      => 'Talk Reports',
-    'page callback'    => 'system_admin_menu_block_page',
+		'page callback'    => 'system_admin_menu_block_page',
 		'access callback'  => 'talk_access',
 		'access arguments' => array('view talks', 1),
 		'file'             => 'system.admin.inc',
+		'file path'        => drupal_get_path('module', 'system'),
 	);
 	$items['reports/talk/last_given_date'] = array(
 		'title'            => 'Public Talk Last Given By Date',

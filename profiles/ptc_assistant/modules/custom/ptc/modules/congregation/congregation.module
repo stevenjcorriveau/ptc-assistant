@@ -45,10 +45,11 @@ function congregation_menu() {
 	$items['setup/congregations'] = array(
 		'title'            => 'Congregations',
 		'description'      => 'Congregation/Kingdom Hall Options',
-    'page callback'    => 'system_admin_menu_block_page',
+		'page callback'    => 'system_admin_menu_block_page',
 		'access callback'  => 'kingdom_hall_access',
 		'access arguments' => array('view', 1),
 		'file'             => 'system.admin.inc',
+		'file path'        => drupal_get_path('module', 'system'),
 	);
 	$items['setup/congregations/congregation'] = array(
 		'title'            => 'Congregations',
