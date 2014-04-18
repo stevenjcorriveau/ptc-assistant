@@ -1,0 +1,9 @@
+# Ignore configuration files that may contain sensitive information.
+sites/*/settings*.php
+
+# Ignore data load files
+profiles/ptc_assistant/modules/custom/ptc/modules/data_load/data_files
+
+# Ignore paths that contain user-generated content.
+sites/*/files
+sites/*/private
