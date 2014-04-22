@@ -1,0 +1,243 @@
+<?php
+
+function hospitality_entity_info() {
+	$return = array();
+	$return['hospitality'] = array(
+		'label'            => t('hospitality'),
+		'controller class' => 'HospitalityController',
+		'base table'       => 'hospitality_assignment',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'assignment_date',
+			'bundle' => 'hospitality',
+			'label'  => 'hospitality',
+		),
+		'bundle keys' => array(
+			'bundle' => 'hospitality',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'hospitality',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+	$return['hospitality_provider'] = array(
+		'label'            => t('hospitality_provider'),
+		'controller class' => 'HospitalityProviderController',
+		'base table'       => 'hospitality_provider',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'hid',
+			'bundle' => 'hospitality_provider',
+			'label'  => 'hospitality_provider',
+		),
+		'bundle keys' => array(
+			'bundle' => 'hospitality_provider',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'hospitality_provider',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function hospitality_load($assignment_date = NULL, $reset = FALSE) {
+	$assignment_date = isset($assignment_date) ? array($assignment_date) : array();
+	$conditions = array();
+	$assignment_dates = hospitality_load_multiple($assignment_date, $conditions, $reset);
+	return $assignment_dates ? reset($assignment_dates) :FALSE;
+}
+
+function hospitality_load_multiple($assignment_dates = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('hospitality', $assignment_dates, $conditions, $reset);
+}
+
+function hospitality_access($op, $hospitality) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+function hospitality_provider_load($hid = NULL, $reset = FALSE) {
+	$hid = isset($hid) ? array($hid) : array();
+	$conditions = array();
+	$hids = hospitality_provider_load_multiple($hid, $conditions, $reset);
+	return $hids ? reset($hids) :FALSE;
+}
+
+function hospitality_provider_load_multiple($hids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('hospitality_provider', $hids, $conditions, $reset);
+}
+
+function hospitality_provider_access($op, $hospitality_provider) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+//TODO:  Fetch name from brother table
+function get_hospitality_provider_list() {
+	$result = db_select('hospitality_provider', 'hp')
+			->fields('hp', array('chid'))
+			->execute();
+			
+	$array = $result->fetchAllKeyed();
+	
+	return $array;
+}
+
+class HospitalityController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+		  'assignment_date' => '',    
+			'hid'             => '',
+			'is_new'          => TRUE,
+		);
+	}
+	
+	public function save($hospitality) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($hospitality->is_new) && $hospitality->is_new) {
+				drupal_write_record('hospitality_assignment', $hospitality);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('hospitality_assignment', $hospitality, 'assignment_date');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $hospitality, 'hospitality');
+			$hospitality->is_new = FALSE;
+			db_ignore_slave();
+			return $hospitality;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('hospitality', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($assignment_dates) {
+		if (!empty($assignment_dates)) {
+			$hospitality = $this->load($assignment_dates, array());
+			$hospitality = db_transaction();
+			
+			try{
+				db_delete('hospitality_assignment')
+					->condition('assignment_date', $assignment_dates, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('hospitality', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $hospitality, 'hospitality');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}
+
+class HospitalityProviderController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+		  'hid'                       => '',    
+			'hospitality_provider_name' => '',
+		  'phone'                     => '',
+		  'bid'                       => '',
+		  'active'                    => '',
+			'is_new'                    => TRUE,
+		);
+	}
+	
+	public function save($hospitality_provider) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($hospitality_provider->is_new) && $hospitality_provider->is_new) {
+				drupal_write_record('hospitality_provider', $hospitality_provider);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('hospitality_provider', $hospitality_provider, 'chid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $hospitality_provider, 'hospitality_provider');
+			$hospitality_provider->is_new = FALSE;
+			db_ignore_slave();
+			return $hospitality_provider;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('hospitality_provider', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($hids) {
+		if (!empty($hids)) {
+			$hospitality_provider = $this->load($hids, array());
+			$hospitality_provider = db_transaction();
+			
+			try{
+				db_delete('hospitality_provider')
+					->condition('hid', $hids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('hospitality_provider', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $hospitality_provider, 'hospitality_provider');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}
