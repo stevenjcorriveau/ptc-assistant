@@ -9,4 +9,8 @@ function data_load_load_legacy_data() {
 	load_congregation_records();
 	$times = module_load_include('inc', 'data_load', 'data_files/migrate.meeting_times');
 	load_meeting_time_records();
+	$chairman = module_load_include('inc', 'data_load', 'data_files/migrate.chairman');
+	load_chairman_records();
+	$readers = module_load_include('inc', 'data_load', 'data_files/migrate.wt_reader');
+	load_wt_reader_records();
 }
