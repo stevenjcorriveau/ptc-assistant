@@ -1,0 +1,11 @@
+name = Hospitality
+description = Submodule for ptc - Store information about hospitality providers and hospitality assignments.
+core = 7.x
+package = PTC
+
+dependencies[] = ptc
+dependencies[] = congregation
+
+files[] = hospitality.install
+files[] = hospitality.module
+files[] = hospitality.pages.inc

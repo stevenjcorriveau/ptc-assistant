@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the hospitality module.
+ */
+ 
+/**
+ * Implements hook_install().
+ */
+function hospitality_install() {
+}
+
+/**
+ * Implements hook_schema().
+ */
+function hospitality_schema() {
+  $schema = array();
+
+	$schema['hospitality_assignment'] = array(
+		'description' => 'Table for storing hospitality assignments',
+		'fields' => array(
+			'assignment_date' => array(
+				'type' => 'int',
+				'description' => 'Date for the hospitality assignment',
+			),
+			'hid' => array(
+				'type'        => 'int',
+        'size'        => 'medium',
+				'description' => 'ID of the hospitality provider assigned to this date.',
+        'not null'    => FALSE,
+			),
+		),
+		'primary key' => array('assignment_date'),
+		'indexes' => array(),
+	);
+
+	$schema['hospitality_provider'] = array(
+		'description' => 'Table for storing hospitality assignments',
+		'fields' => array(
+			'hid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for hospitality providers',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'hospitality_provider_name' => array(
+				'type'        => 'varchar',
+				'length'      => 30,
+				'not null'    => TRUE,
+				'description' => 'Name of person or group providing hospitality.',
+			),
+			'phone' => array(
+				'type'        => 'char',
+				'length'      => 13,
+				'not null'    => FALSE,
+				'description' => 'Hospitality provider phone number.',
+			),
+			'bid' => array(
+				'type'        => 'int',
+        'size'        => 'medium',
+				'description' => 'If the provider is a speaker, this field identifies him.  Used for identifying conflicts.',
+        'not null'    => FALSE,
+			),
+			'active' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this hospitality provider is active(1) or not(0).',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+		),
+		'primary key' => array('hid'),
+		'indexes' => array(),
+	);
+	
+	return $schema;
+}

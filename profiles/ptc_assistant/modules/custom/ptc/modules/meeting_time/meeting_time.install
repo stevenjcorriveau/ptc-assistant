@@ -52,7 +52,7 @@ function meeting_time_schema() {
 			),
 			'cid' => array(
 				'type'        => 'int',
-        'size'        => 'tiny',
+        'size'        => 'medium',
 				'description' => 'ID of the congregation',
         'not null'    => FALSE,
 			),

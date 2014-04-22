@@ -26,7 +26,7 @@ function chairman_schema() {
 			),
 			'chid' => array(
 				'type'        => 'int',
-				'size'        => 'tiny',
+				'size'        => 'medium',
 				'description' => 'ID of the chairman provider assigned to this date.',
 				'not null'    => FALSE,
 			),
