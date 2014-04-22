@@ -67,7 +67,7 @@ function ptc_menu() {
  * menu to the menu_bar region.
  */
 function ptc_block_info_alter(&$blocks, $theme, $code_blocks) {
-	if ($theme == 'commons_origins') {
+	if ($theme == 'garland') {
 		// Remove navigation menu from any regions
 		$blocks['system']['navigation']['region'] = -1;
 		

@@ -35,6 +35,8 @@ dependencies[] = congregation
 dependencies[] = meeting_time
 dependencies[] = talk
 dependencies[] = restriction
+dependencies[] = chairman
+dependencies[] = wt_reader
 dependencies[] = data_load
 
 ; Files included with profile
