@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the chairman module.
+ */
+ 
+/**
+ * Implements hook_install().
+ */
+function chairman_install() {
+}
+
+/**
+ * Implements hook_schema().
+ */
+function chairman_schema() {
+	$schema = array();
+
+	$schema['chairman'] = array(
+		'description' => 'Table for storing chairman assignments',
+		'fields' => array(
+			'assignment_date' => array(
+				'type' => 'int',
+				'description' => 'Date for the chairman assignment',
+			),
+			'chid' => array(
+				'type'        => 'int',
+				'size'        => 'tiny',
+				'description' => 'ID of the chairman provider assigned to this date.',
+				'not null'    => FALSE,
+			),
+		),
+		'primary key' => array('assignment_date'),
+		'indexes' => array(),
+	);
+	
+	return $schema;
+}

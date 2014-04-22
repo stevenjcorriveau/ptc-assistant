@@ -1,0 +1,128 @@
+<?php
+
+function wt_reader_entity_info() {
+	$return = array();
+	$return['wt_reader'] = array(
+		'label'            => t('Watchtower Reader'),
+		'controller class' => 'WTReaderController',
+		'base table'       => 'wt_reader',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'rid',
+			'bundle' => 'wt_reader',
+			'label'  => 'wt_reader',
+		),
+		'bundle keys' => array(
+			'bundle' => 'wt_reader',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'wt_reader',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function wt_reader_load($rid = NULL, $reset = FALSE) {
+	$rid = isset($rid) ? array($rid) : array();
+	$conditions = array();
+	$rids = wt_reader_load_multiple($rid, $conditions, $reset);
+	return $rids ? reset($rids) :FALSE;
+}
+
+function wt_reader_load_multiple($rids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('wt_reader', $rids, $conditions, $reset);
+}
+
+function wt_reader_access($op, $wt_reader) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+//TODO:  Fetch name from brother table
+function get_wt_reader_list() {
+	$result = db_select('wt_reader', 'wtr')
+			->fields('wtr', array('rid'))
+			->execute();
+			
+	$array = $result->fetchAllKeyed();
+	
+	return $array;
+}
+class WTReaderController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+		    'assignment_date' => '',    
+			'rid'            => '',
+			'is_new'          => TRUE,
+		);
+	}
+	
+	public function save($wt_reader) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($wt_reader->is_new) && $wt_reader->is_new) {
+				drupal_write_record('wt_reader', $wt_reader);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('wt_reader', $wt_reader, 'rid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $wt_reader, 'wt_reader');
+			$wt_reader->is_new = FALSE;
+			db_ignore_slave();
+			return $wt_reader;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('wt_reader', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($rids) {
+		if (!empty($rids)) {
+			$wt_reader = $this->load($rids, array());
+			$wt_reader = db_transaction();
+			
+			try{
+				db_delete('wt_reader')
+					->condition('rid', $rids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('wt_reader', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $wt_reader, 'wt_reader');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}

@@ -1,0 +1,9 @@
+name = Chairman
+description = Submodule for ptc - Store information about chairman assignments.
+core = 7.x
+package = PTC
+
+dependencies[] = ptc
+dependencies[] = congregation
+
+files[] = chairman.install

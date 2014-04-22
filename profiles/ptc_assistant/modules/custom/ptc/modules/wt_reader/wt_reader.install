@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the wt_reader module.
+ */
+ 
+/**
+ * Implements hook_install().
+ */
+function wt_reader_install() {
+}
+
+/**
+ * Implements hook_schema().
+ */
+function wt_reader_schema() {
+	$schema = array();
+
+	$schema['wt_reader'] = array(
+		'description' => 'Table for storing wt_reader assignments',
+		'fields' => array(
+			'assignment_date' => array(
+				'type' => 'int',
+				'description' => 'Date for the wt_reader assignment',
+			),
+			'rid' => array(
+				'type'        => 'int',
+				'size'        => 'tiny',
+				'description' => 'ID of the wt_reader provider assigned to this date.',
+				'not null'    => FALSE,
+			),
+		),
+		'primary key' => array('assignment_date'),
+		'indexes' => array(),
+	);
+	
+	return $schema;
+}

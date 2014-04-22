@@ -1,0 +1,128 @@
+<?php
+
+function chairman_entity_info() {
+	$return = array();
+	$return['chairman'] = array(
+		'label'            => t('Chairman'),
+		'controller class' => 'ChairmanController',
+		'base table'       => 'chairman',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'chid',
+			'bundle' => 'chairman',
+			'label'  => 'chairman',
+		),
+		'bundle keys' => array(
+			'bundle' => 'chairman',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'chairman',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function chairman_load($chid = NULL, $reset = FALSE) {
+	$chid = isset($chid) ? array($chid) : array();
+	$conditions = array();
+	$chids = chairman_load_multiple($chid, $conditions, $reset);
+	return $chids ? reset($chids) :FALSE;
+}
+
+function chairman_load_multiple($chids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('chairman', $chids, $conditions, $reset);
+}
+
+function chairman_access($op, $chairman) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+//TODO:  Fetch name from brother table
+function get_chairman_list() {
+	$result = db_select('chairman', 'c')
+			->fields('c', array('chid'))
+			->execute();
+			
+	$array = $result->fetchAllKeyed();
+	
+	return $array;
+}
+class ChairmanController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+		    'assignment_date' => '',    
+			'chid'            => '',
+			'is_new'          => TRUE,
+		);
+	}
+	
+	public function save($chairman) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($chairman->is_new) && $chairman->is_new) {
+				drupal_write_record('chairman', $chairman);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('chairman', $chairman, 'chid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $chairman, 'chairman');
+			$chairman->is_new = FALSE;
+			db_ignore_slave();
+			return $chairman;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('chairman', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($chids) {
+		if (!empty($chids)) {
+			$chairman = $this->load($chids, array());
+			$chairman = db_transaction();
+			
+			try{
+				db_delete('chairman')
+					->condition('chid', $chids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('chairman', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $chairman, 'chairman');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}
