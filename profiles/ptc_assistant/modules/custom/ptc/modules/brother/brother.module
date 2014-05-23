@@ -1,0 +1,460 @@
+<?php
+
+function brother_entity_info() {
+	$return = array();
+	$return['brother'] = array(
+		'label'            => t('Brother'),
+		'controller class' => 'BrotherController',
+		'base table'       => 'brother',
+		'uri callback'     => 'brother_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'bid',
+			'bundle' => 'brother',
+			'label'  => 'brother',
+		),
+		'bundle keys' => array(
+			'bundle' => 'brother',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'brother',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function brother_uri($bid) {
+	return array(
+		'path' => 'brother/' . $brother->bid,
+	);
+}
+
+function brother_talk_entity_info() {
+	$return = array();
+	$return['brother'] = array(
+		'label'            => t('Brother Talk'),
+		'controller class' => 'BrotherTalkController',
+		'base table'       => 'brother_talk',
+		'uri callback'     => 'brother_talk_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'btid',
+			'bundle' => 'brother_talk',
+			'label'  => 'brother_talk',
+		),
+		'bundle keys' => array(
+			'bundle' => 'brother_talk',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'brother_talk',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function brother_talk_uri($btid) {
+	return array(
+		'path' => 'brother_talk/' . $brother->btid,
+	);
+}
+
+function brother_menu() {
+	$items = array();
+	
+	$items['setup/brothers'] = array(
+		'title'            => 'Brothers',
+		'description'      => 'Brother Options',
+		'page callback'    => 'system_admin_menu_block_page',
+		'access callback'  => 'brother_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'system.admin.inc',
+		'file path'        => drupal_get_path('module', 'system'),
+	);
+	$items['setup/brothers/brother'] = array(
+		'title'            => 'Brothers',
+		'description'      => 'Edit brothers',
+    'page callback'    => 'brother_brothers',
+		'access callback'  => 'brother_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'brother.pages.inc',
+	);
+	$items['setup/brothers/brother/add'] = array(
+		'title'            => 'Add new brother',
+		'page callback'    => 'brother_add',
+		'access arguments' => array('add brother'),
+		'weight'           => 1,
+		'file'             => 'brother.pages.inc',
+		'type'             => MENU_LOCAL_ACTION,
+	);
+
+	$items['brother/%brother'] = array(
+		'title'            => 'Brother',
+		'page callback'    => 'brother_page_view',
+		'page arguments'   => array(1),
+		'access callback'  => 'brother_access',
+		'access arguments' => array('view', 1),
+		'file'             => 'brother.pages.inc',
+		'type'             => MENU_CALLBACK,
+		'weight'           => 0,
+	);
+	/*$items['brother/%brother/view'] = array(
+		'title'  => 'View',
+		'type'   => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => -10,
+	);*/
+	$items['brother/%brother/edit'] = array(
+		'title'            => 'Edit',
+		'page callback'    => 'brother_page_edit',
+		'page arguments'   => array(1),
+		'access callback'  => 'brother_access',
+		'access arguments' => array('edit', 1),
+		'weight'           => 0,
+		'file'             => 'brother.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_PAGE|MENU_CONTEXT_INLINE,
+	);
+	$items['brother/%brother/delete'] = array(
+		'title'            => 'Delete',
+		'page callback'    => 'drupal_get_form',
+		'page arguments'   => array('brother_delete_confirm', 1),
+		'access callback'  => 'brother_access',
+		'access arguments' => array('delete', 1),
+		'weight'           => 1,
+		'file'             => 'brother.pages.inc',
+		'type'             => MENU_LOCAL_TASK,
+		'context'          => MENU_CONTEXT_INLINE,
+	);
+	
+	return $items;
+}
+
+function brother_load($bid = NULL, $reset = FALSE) {
+	$bid = isset($bid) ? array($bid) : array();
+	$conditions = array();
+	$bids = brother_load_multiple($bid, $conditions, $reset);
+	return $bids ? reset($bids) :FALSE;
+}
+
+function brother_load_multiple($bids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('brother', $bids, $conditions, $reset);
+}
+
+function brother_access($op, $brother) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function brother_block_info() {
+	$blocks = array();
+	
+  $blocks['brother_settings'] = array(
+    'info' => t('Brother settings'),
+		'status' => TRUE,
+    'cache' => DRUPAL_NO_CACHE,
+  );
+	
+  $blocks['brother_talks'] = array(
+    'info' => t('Brother talks'),
+		'status' => TRUE,
+    'cache' => DRUPAL_NO_CACHE,
+  );
+	
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function brother_block_info_alter(&$blocks, $theme, $code_blocks) {
+	//dsm($blocks, 'blocks');
+	if (isset($blocks['brother']['brother_settings'])) {
+		if ($blocks['brother']['brother_settings']['theme'] == 'garland') {
+			$blocks['brother']['brother_settings']['region'] = 'sidebar_second';
+		}
+	}
+	//dsm($blocks, 'blocks after alter');
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function brother_block_view($delta = '') {
+	$block = array();
+	
+	switch ($delta) {
+    case 'brother_settings':
+			$form = drupal_get_form('brother_settings_content');
+			
+			if (isset($form['buttons'])) {
+				$block['subject'] = t('Brother settings');
+				$block['content'] = $form;
+			}
+      break;
+    case 'brother_talks':
+			$form = drupal_get_form('brother_talks_content');
+			
+			if (isset($form['buttons'])) {
+				$block['subject'] = t('Talks Given');
+				$block['content'] = $form;
+			}
+      break;
+	}
+	
+	return $block;
+}
+
+function brother_settings_content($form, &$form_state) {
+	module_load_include('inc', 'brother', 'brother.pages');
+	$path = current_path();	
+	$form = array();
+	
+	// Add submit button to all appropriate brother paths.
+	switch ($path) {
+		case 'setup/brothers/brother':
+			$form['buttons'] = array();
+			$form['buttons']['#weight'] = 100;
+			$form['buttons']['submit'] = array(
+				'#type'   => 'submit',
+				'#value'  => t('Save'),
+				'#weight' => 25,
+				'#submit' => array('brother_settings_submit'),
+			);
+			break;
+	}
+	
+	// Add other form elements based on path.
+	switch ($path) {
+		case 'setup/brothers/brother':
+			$form['brother_list_limit'] = array(
+				'#type'          => 'textfield',
+				'#title'         => t('brother list limit'),
+				'#default_value' => variable_get('brother_list_limit', 25),
+				'#size'          => 4,
+				'#weight'        => 1,
+			);
+			break;
+	}
+	
+	return $form;
+}
+
+function brother_settings_submit($form, &$form_state) {
+	if (isset($form_state['values']['brother_list_limit'])) {
+		variable_set('brother_list_limit', $form_state['values']['brother_list_limit']);
+	}
+}
+
+function brother_talks_content($form, &$form_state) {
+	module_load_include('inc', 'brother', 'brother.talks.pages');
+	$path = current_path();	
+	$form = drupal_get_form(brother_talks);
+	
+	return $form;
+}
+
+class BrotherController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+			'bid'            => '',
+			'cid'            => '',
+			'brother_fname'  => '',
+			'brother_mname'  => '',
+			'brother_lname'  => '',
+			'address'        => '',
+			'city'           => '',
+			'state'          => '',
+			'zipcode'        => '',
+			'contact_notes'  => '',
+			'elder_ms'       => '',
+			'ptc'            => '',
+			'cobe'           => '',
+			'sec'            => '',
+			'so'             => '',
+			'wt_conductor'   => '',
+			'available'      => '',
+			'avail_comment'  => '',
+			'outgoing_sp'    => '',
+			'outgoing_ms'    => '',
+			'no_am_talks'    => '',
+			'no_noon_talks'  => '',
+			'no_pm_talks'    => '',
+			'active'         => '',
+			'chairman'       => '',
+			'wt_reader'      => '',
+			'rbc'            => '',
+			'rating'         => '',
+			'notes'          => '',
+			'br_last_update' => '',
+			'is_new'         => TRUE,
+		);
+	}
+	
+	public function save($brother) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($brother->is_new) && $brother->is_new) {
+				drupal_write_record('brother', $brother);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('brother', $brother, 'bid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $brother, 'brother');
+			$brother->is_new = FALSE;
+			db_ignore_slave();
+			return $brother;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('brother', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($bids) {
+		if (!empty($bids)) {
+			$brother = $this->load($bids, array());
+			$brother = db_transaction();
+			
+			try{
+				db_delete('brother')
+					->condition('bid', $bids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('brother', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $brother, 'brother');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}
+
+function brother_talk_load($btid = NULL, $reset = FALSE) {
+  $btid = isset($btid) ? array($btid) : array();
+	$conditions = array();
+	$btids = brother_load_multiple($btid, $conditions, $reset);
+	return $btids ? reset($btids) : FALSE;
+}
+
+function brother_talk_load_multiple($btids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('brother_talk', $btids, $conditions, $reset);
+}
+
+function brother_talk_access($op, $brother_talk) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+class BrotherTalkController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+      'btid'           => '',
+			'bid'            => '',
+			'tid'            => '',
+			'can_schedule'   => '',
+			'is_new'         => TRUE,
+		);
+	}
+	
+	public function save($brother_talk) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($brother_talk->is_new) && $brother_talk->is_new) {
+				drupal_write_record('brother_talk', $brother_talk);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('brother_talk', $brother_talk, 'btid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $brother_talk, 'brother_talk');
+			$brother_talk->is_new = FALSE;
+			db_ignore_slave();
+			return $brother_talk;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('brother_talk', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($btids) {
+		if (!empty($btids)) {
+			$brother_talk = $this->load($btids, array());
+			$brother_talk = db_transaction();
+			
+			try{
+				db_delete('brother_talk')
+					->condition('btid', $btids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('brother_talk', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $brother_talk, 'brother_talk');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}

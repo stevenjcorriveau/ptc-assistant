@@ -1,0 +1,250 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the brother module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function brother_schema() {
+	$schema = array();
+	
+	$schema['brother'] = array(
+		'description' => 'Table for storing brother information',
+		'fields' => array(
+			'bid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for brothers',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'cid' => array(
+				'type'        => 'int',
+				'size'        => 'medium',
+				'description' => 'ID of the congregation this brother goes to.',
+        'not null'    => FALSE,
+			),
+			'brother_fname' => array(
+				'type'        => 'varchar',
+				'length'      => 25,
+				'not null'    => FALSE,
+				'description' => 'First name of this brother.',
+			),
+			'brother_mname' => array(
+				'type'        => 'varchar',
+				'length'      => 25,
+				'not null'    => FALSE,
+				'description' => 'Middle name or initial of this brother.',
+			),
+			'brother_lname' => array(
+				'type'        => 'varchar',
+				'length'      => 30,
+				'not null'    => FALSE,
+				'description' => 'Last name of this brother.',
+			),
+			'address' => array(
+				'type'        => 'varchar',
+				'length'      => 50,
+				'not null'    => FALSE,
+				'description' => 'Street address for this Kingdom Hall.',
+			),
+			'city' => array(
+				'type'        => 'varchar',
+				'length'      => 50,
+				'not null'    => FALSE,
+				'description' => 'City for this brother.',
+			),
+			'state' => array(
+				'type'        => 'char',
+				'length'      => 2,
+				'description' => 'The state that the brother resides in',
+				'not null'    => FALSE,
+			),
+			'zipcode' => array(
+				'type'        => 'char',
+				'length'      => 10,
+				'description' => 'The zipcode for the brother',
+				'not null'    => FALSE,
+			),
+			'contact_notes' => array(
+				'type'        => 'varchar',
+				'length'      => 256,
+				'not null'    => FALSE,
+				'description' => 'Any notes regarding contacting this brother.',
+			),
+			'elder_ms' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is an elder(2) or ministerial servant(1) or not (0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'ptc' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is the ptc(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'cobe' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is the coordinator(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'sec' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is the secretary(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'so' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is the service overseer(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'wt_conductor' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is the WT conductor(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'available' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is available to go out on talks(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+			'avail_comment' => array(
+				'type'        => 'varchar',
+				'length'      => 256,
+				'not null'    => FALSE,
+				'description' => 'Any notes on the brothers availability.',
+			),
+			'outgoing_sp' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is an outgoing speaker(1) or not(0).  Prevents brother from appearing in speaker lists if not a speaker.',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+			'outgoing_ms' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is an outgoing servant(1) or not(0).  Prevents brother from appearing in speaker lists if not a speaker.',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'no_am_talks' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is available for morning talks(1) or not(0).  This would be meeting times prior to 11:30 am.',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'no_noon_talks' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is available for midday talks(1) or not(0).  This would be meeting times from 11:30 am to 1:30 pm.',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'no_pm_talks' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is available for evening talks(1) or not(0).  This would be meeting times after 1:30 pm.',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'active' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is active(1) or not(0).  Removes the brother from speaker lists without deleting history.',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+			'chairman' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is a chairman(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'wt_reader' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is a WT reader(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'rbc' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is on the RBC(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 0,
+			),
+			'rating' => array(
+				'type'        => 'varchar',
+				'length'      => 256,
+				'not null'    => FALSE,
+				'description' => 'A brief description of the ability of the brother.',
+			),
+			'notes' => array(
+				'type'        => 'varchar',
+				'length'      => 256,
+				'not null'    => FALSE,
+				'description' => 'Any notes about this brother.',
+			),
+			'br_last_update' => array(
+				'type' => 'int',
+				'description' => 'Date the last time this brother was modified.',
+			),
+		),
+		'primary key' => array('bid'),
+		'indexes' => array(),
+	);
+	
+	$schema['brother_talk'] = array(
+		'description' => 'Table for storing talks that a brother gives',
+		'fields' => array(
+			'btid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for brother talks',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'bid' => array(
+				'type'        => 'int',
+				'size'        => 'medium',
+				'description' => 'ID for brother',
+				'not null'    => TRUE,
+			),
+			'tid' => array(
+				'type'        => 'int',
+				'size'        => 'medium',
+				'description' => 'ID of talk brother gives.',
+        'not null'    => TRUE,
+			),
+			'can_schedule' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this brother is ready to give this talk outside his home hall(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+		),
+		'primary key' => array('btid'),
+		'indexes' => array(),
+	);
+  
+	return $schema;
+}

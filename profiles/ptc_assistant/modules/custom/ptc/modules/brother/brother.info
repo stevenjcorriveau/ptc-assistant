@@ -1,0 +1,11 @@
+name = Brother
+description = Submodule for ptc - Store information about brothers.
+core = 7.x
+package = PTC
+
+dependencies[] = ptc
+
+files[] = brother.install
+files[] = brother.module
+files[] = brother.pages.inc
+files[] = brother.talk.pages.inc
