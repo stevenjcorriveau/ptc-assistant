@@ -35,6 +35,7 @@ dependencies[] = congregation
 dependencies[] = meeting_time
 dependencies[] = talk
 dependencies[] = restriction
+dependencies[] = brother
 dependencies[] = chairman
 dependencies[] = wt_reader
 dependencies[] = data_load
