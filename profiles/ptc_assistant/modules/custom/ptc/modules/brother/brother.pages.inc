@@ -200,53 +200,187 @@ function brother_form($form, &$form_state, $brother) {
 	$form['#id'] = 'brother-form';
 	$form['#brother'] = $brother;
 	$form_state['brother'] = $brother;
+  
+	$form['brother_name']=array(
+    '#type' => 'fieldset',
+    '#title' => t('Name'),
+    '#weight' => 1,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+	);
+  
+	$form['brother_name']['brother_fname']=array(
+		'#prefix' => '<div>',
+		'#markup' => $brother->brother_fname,
+		'#suffix' => '</div>',
+		'#weight' => 4,
+	);
+	$form['brother_name']['brother_mname']=array(
+		'#prefix' => '<div>',
+		'#markup' => $brother->brother_mname,
+		'#suffix' => '</div>',
+		'#weight' => 5,
+	);
+	$form['brother_name']['brother_lname']=array(
+		'#prefix' => '<div>',
+		'#markup' => $brother->brother_lname,
+		'#suffix' => '</div>',
+		'#weight' => 6,
+	);
 	
 	$form['cid']=array(
-		'#type'          => 'hidden',
-		'#weight'        => 1,
-	);
-	$form['brother_name']=array(
-		'#type'          => 'textfield',
-		'#title'         => t('Congregation'),
-		'#default_value' => $brother->brother_name,
-		'#weight'        => 2,
-	);
-	$form['khid']=array(
 		'#type'          => 'select',
-		'#title'         => t('Kingdom Hall'),
-		'#options'       => get_kingdom_hall_list(),
-		'#default_value' => $brother->khid,
-		'#weight'        => 3,
+		'#title'         => t('Congregation'),
+		'#options'       => get_congregation_list(),
+		'#default_value' => $brother->cid,
+		'#weight'        => 7,
 	);
-	$form['phone']=array(
-		'#type'          => 'textfield',
-		'#title'         => t('Phone'),
-		'#default_value' => $brother->phone,
-		'#weight'        => 4,
+  
+	$form['address']=array(
+    '#type' => 'fieldset',
+    '#title' => t('Address'),
+    '#weight' => 8,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
 	);
-	$form['ptcid']=array(
-		'#type'          => 'textfield',
+	$form['address']['street']=array(
+		'#prefix' => '<div>',
+		'#markup' => $brother->address,
+		'#suffix' => '</div>',
+		'#weight' => 9,
+	);
+  $form['address']['container']=array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array(
+        'address-line',
+      ),
+    ),
+    '#weight' => 10,
+  );
+	$form['address']['container']['city']=array(
+		'#prefix' => '<div>',
+		'#markup' => $brother->city,
+		'#suffix' => '</div>',
+		'#weight' => 11,
+	);
+	$form['address']['container']['state']=array(
+		'#prefix' => '<div>',
+		'#markup' => $brother->state,
+		'#suffix' => '</div>',
+		'#weight' => 12,
+	);
+	$form['address']['container']['zipcode']=array(
+		'#prefix' => '<div>',
+		'#markup' => $brother->zipcode,
+		'#suffix' => '</div>',
+		'#weight' => 13,
+	);
+  
+ 
+	$form['cong_resp']=array(
+    '#type' => 'fieldset',
+    '#title' => t('Congregation Responsibilities'),
+    '#weight' => 14,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+	);
+  $form['cong_resp']['box-left']=array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array(
+        'cong-resp-box-left',
+      ),
+    ),
+    '#weight' => 15,
+  );
+	$form['cong_resp']['box-left']['elder_ms']=array(
+		'#type'          => 'fieldset',
+		'#title'         => t('Elder/MS'),
+		'#weight'        => 16,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+	);
+	$form['cong_resp']['box-left']['elder_ms']['elder']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('Elder'),
+		'#default_value' => ($brother->elder_ms == 2) ? 1 : 0,
+		'#weight'        => 17,
+	);
+	$form['cong_resp']['box-left']['elder_ms']['MS']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('MS'),
+		'#default_value' => ($brother->elder_ms == 1) ? 1 : 0,
+		'#weight'        => 18,
+	);
+	$form['cong_resp']['box-left']['wt_conductor']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('WT Conductor'),
+		'#default_value' => $brother->wt_conductor,
+		'#weight'        => 19,
+	);
+	$form['cong_resp']['box-left']['chairman']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('Chairman'),
+		'#default_value' => $brother->chairman,
+		'#weight'        => 20,
+	);
+	$form['cong_resp']['box-left']['wt_reader']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('WT Reader'),
+		'#default_value' => $brother->wt_reader,
+		'#weight'        => 21,
+	);
+  $form['cong_resp']['box_right']=array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array(
+        'cong-resp-box-right',
+      ),
+    ),
+    '#weight' => 22,
+  );
+	$form['cong_resp']['box_right']['ptc']=array(
+		'#type'          => 'checkbox',
 		'#title'         => t('PTC'),
-		'#default_value' => $brother->ptcid, // Should show dropdown of names for brothers in the cong not ID
-		'#weight'        => 5,
+		'#default_value' => $brother->ptc,
+		'#weight'        => 23,
 	);
-	$form['last_trade_date']=array(
-		'#type'          => 'textfield',
-		'#title'         => t('Last Trade'),
-		'#default_value' => !empty($brother->last_trade_date) ? ptc_epoch2date($brother->last_trade_date) : NULL,
-		'#weight'        => 6,
+	$form['cong_resp']['box_right']['cobe']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('COBE'),
+		'#default_value' => $brother->cobe,
+		'#weight'        => 24,
 	);
+	$form['cong_resp']['box_right']['sec']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('Sec'),
+		'#default_value' => $brother->sec,
+		'#weight'        => 25,
+	);
+	$form['cong_resp']['box_right']['so']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('SO'),
+		'#default_value' => $brother->so,
+		'#weight'        => 26,
+	);
+	$form['cong_resp']['box_right']['rbc']=array(
+		'#type'          => 'checkbox',
+		'#title'         => t('RBC'),
+		'#default_value' => $brother->rbc,
+		'#weight'        => 27,
+	);
+  
+  
+  
+  
+  
+  
 	$form['active']=array(
 		'#type'          => 'checkbox',
 		'#title'         => t('Active'),
 		'#default_value' => $brother->active,
-		'#weight'        => 7,
-	);
-	$form['circuit']=array(
-		'#type'          => 'textfield',
-		'#title'         => t('Circuit'),
-		'#default_value' => $brother->circuit,
-		'#weight'        => 8,
+		'#weight'        => 75,
 	);
 
 	$form['buttons'] = array();
@@ -254,7 +388,7 @@ function brother_form($form, &$form_state, $brother) {
 	$form['buttons']['submit'] = array(
 		'#type'   => 'submit',
 		'#value'  => t('Save'),
-		'#weight' => 25,
+		'#weight' => 101,
 		'#submit' => array('brother_form_submit'),
 	);
 	
@@ -263,7 +397,7 @@ function brother_form($form, &$form_state, $brother) {
 			'#type'   => 'submit',
 			'#value'  => t('Delete'),
 			'#access' => talk_access('delete', $brother),
-			'#weight' => 35,
+			'#weight' => 105,
 			'#submit' => array('brother_form_delete_submit'),
 		);
 	}
