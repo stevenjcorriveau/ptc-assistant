@@ -222,6 +222,16 @@ function congregation_settings_submit($form, &$form_state) {
 	}
 }
 
+function get_congregation_list() {
+	$result = db_select('congregation', 'c')
+			->fields('c', array('cid', 'congregation_name'))
+			->execute();
+			
+	$array = $result->fetchAllKeyed();
+	
+	return $array;
+}
+
 class CongregationController extends DrupalDefaultEntityController{
 	
 	public function create($type = '') {
