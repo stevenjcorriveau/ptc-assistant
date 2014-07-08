@@ -246,5 +246,57 @@ function brother_schema() {
 		'indexes' => array(),
 	);
   
+  $schema['brother_phone'] = array(    
+		'description' => 'Table for storing phone numbers for speakers',
+		'fields' => array(
+			'bpid' => array(
+				'type' => 'serial',
+				'description' => 'Auto increment id for brother phones',
+				'unsigned' => TRUE,
+				'not null' => FALSE,
+			),
+			'bid' => array(
+				'type'        => 'int',
+				'size'        => 'medium',
+				'description' => 'ID for brother',
+				'not null'    => TRUE,
+			),
+			'phone_type' => array(
+				'type'        => 'char',
+				'length'      => 4,
+				'not null'    => TRUE,
+				'description' => 'The phone number type code.',
+			),
+			'phone_number' => array(
+				'type'        => 'char',
+				'length'      => 13,
+				'not null'    => FALSE,
+				'description' => 'The phone number.',
+			),
+			'phone_ext' => array(
+				'type'        => 'varchar',
+				'length'      => 20,
+				'not null'    => TRUE,
+				'description' => 'The extension (if any).',
+			),
+			'long_distance' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this is a long-distance call(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+			'prefered' => array(
+				'type'        => 'int',
+        'size'        => 'tiny',
+				'description' => 'Whether this is the prefered number(1) or not(0)',
+        'not null'    => FALSE,
+        'default'     => 1,
+			),
+		),
+		'primary key' => array('bpid'),
+		'indexes' => array(),
+  );
+  
 	return $schema;
 }
