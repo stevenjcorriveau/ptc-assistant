@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Methods for the brother entity.
+ */
 function brother_entity_info() {
 	$return = array();
 	$return['brother'] = array(
@@ -36,45 +39,6 @@ function brother_entity_info() {
 function brother_uri($bid) {
 	return array(
 		'path' => 'brother/' . $brother->bid,
-	);
-}
-
-function brother_talk_entity_info() {
-	$return = array();
-	$return['brother'] = array(
-		'label'            => t('Brother Talk'),
-		'controller class' => 'BrotherTalkController',
-		'base table'       => 'brother_talk',
-		'uri callback'     => 'brother_talk_uri',
-		'fieldable'        => FALSE,
-		'entity keys'      => array(
-			'id'     => 'btid',
-			'bundle' => 'brother_talk',
-			'label'  => 'brother_talk',
-		),
-		'bundle keys' => array(
-			'bundle' => 'brother_talk',
-		),
-		'static cache' => TRUE,
-		'bundles'      => array('label' => 'brother_talk',),
-		'view modes'   => array(
-			'full' => array(
-				'label' => t('Full content'),
-				'custom settings' => FALSE,
-			),
-			'teaser' => array(
-				'label' => t('Teaser'),
-				'custom settings' => FALSE,
-			),
-		),
-	);
-
-	return $return;
-}
-
-function brother_talk_uri($btid) {
-	return array(
-		'path' => 'brother_talk/' . $brother->btid,
 	);
 }
 
@@ -222,12 +186,14 @@ function brother_block_view($delta = '') {
 			}
       break;
     case 'brother_talks':
+    /*
 			$form = drupal_get_form('brother_talks_content');
 			
 			if (isset($form['buttons'])) {
 				$block['subject'] = t('Talks Given');
 				$block['content'] = $form;
 			}
+      */
       break;
 	}
 	
@@ -273,14 +239,6 @@ function brother_settings_submit($form, &$form_state) {
 	if (isset($form_state['values']['brother_list_limit'])) {
 		variable_set('brother_list_limit', $form_state['values']['brother_list_limit']);
 	}
-}
-
-function brother_talks_content($form, &$form_state) {
-	module_load_include('inc', 'brother', 'brother.talks.pages');
-	$path = current_path();	
-	$form = drupal_get_form(brother_talks);
-	
-	return $form;
 }
 
 class BrotherController extends DrupalDefaultEntityController{
@@ -370,6 +328,57 @@ class BrotherController extends DrupalDefaultEntityController{
 		}
 		return TRUE;
 	}
+}
+
+
+/**
+ * Methods for the brother talk entity.
+ */
+function brother_talk_entity_info() {
+	$return = array();
+	$return['brother'] = array(
+		'label'            => t('Brother Talk'),
+		'controller class' => 'BrotherTalkController',
+		'base table'       => 'brother_talk',
+		'uri callback'     => 'brother_talk_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'btid',
+			'bundle' => 'brother_talk',
+			'label'  => 'brother_talk',
+		),
+		'bundle keys' => array(
+			'bundle' => 'brother_talk',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'brother_talk',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function brother_talk_uri($btid) {
+	return array(
+		'path' => 'brother_talk/' . $brother->btid,
+	);
+}
+
+function brother_talks_content($form, &$form_state) {
+	module_load_include('inc', 'brother', 'brother.talks.pages');
+	$path = current_path();	
+	$form = drupal_get_form(brother_talks);
+	
+	return $form;
 }
 
 function brother_talk_load($btid = NULL, $reset = FALSE) {

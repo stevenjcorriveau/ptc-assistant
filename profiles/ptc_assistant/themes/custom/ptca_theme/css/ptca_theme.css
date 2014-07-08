@@ -7,28 +7,53 @@
  * remember to update the name in the info file
  * as well.
  */
+
+.form-item {
+  margin-top: 0;
+  margin-bottom: 0;
+}
  
-div.address-city,
-div.address-state,
-div.address-zipcode {
-   display: inline;
+/* Brother Edit form */
+
+fieldset.brother-info {
+  display: block;
 }
 
-div.address-line {
-  width: 100%;
+div.form-item-brother-fname,
+div.form-item-brother-mname,
+div.form-item-brother-lname {
+  display: inline-block;
+}
+ 
+div.form-item-city,
+div.form-item-state,
+div.form-item-zipcode {
+   display: inline-block;
 }
 
-div.address-city {
-  width: 50%;
-  min-width: 30em;
+div.cong-resp-elder-ms,
+div.cong-resp-outgoing,
+div.cong-resp-cong,
+div.cong-resp-col-1,
+div.cong-resp-col-2,
+div.cong-resp-col-3,
+div.cong-resp-col-4 {
+  display: inline-block;
+  margin-right: 2em;
+  vertical-align: top;
 }
 
-div.address-state {
-  width: 15%;
-  min-width: 10em;
+div.availibility-col-1,
+div.availibility-col-2,
+div.availibility-col-3 {
+  display: inline-block;
+  margin-right: 2em;
+  vertical-align: top;
 }
 
-div.address-zipcode {
-  width: 25%;
-  min-width: 20em;
+div.comments-col-1,
+div.comments-col-2 {
+  display: inline-block;
+  margin-right: 2em;
+  vertical-align: top;
 }
