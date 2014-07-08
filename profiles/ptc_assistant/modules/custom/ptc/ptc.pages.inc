@@ -368,6 +368,7 @@ function theme_report_block($variables) {
 
 function get_state_options() {
   return array(
+    '' => t('None'),
     'AL' => t('Alabama'),
     'AK' => t('Alaska'),
     'AZ' => t('Arizona'),
