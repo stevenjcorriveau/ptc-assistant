@@ -1,47 +1,5 @@
 <?php
 
-/**
- * Methods for the brother entity.
- */
-function brother_entity_info() {
-	$return = array();
-	$return['brother'] = array(
-		'label'            => t('Brother'),
-		'controller class' => 'BrotherController',
-		'base table'       => 'brother',
-		'uri callback'     => 'brother_uri',
-		'fieldable'        => FALSE,
-		'entity keys'      => array(
-			'id'     => 'bid',
-			'bundle' => 'brother',
-			'label'  => 'brother',
-		),
-		'bundle keys' => array(
-			'bundle' => 'brother',
-		),
-		'static cache' => TRUE,
-		'bundles'      => array('label' => 'brother',),
-		'view modes'   => array(
-			'full' => array(
-				'label' => t('Full content'),
-				'custom settings' => FALSE,
-			),
-			'teaser' => array(
-				'label' => t('Teaser'),
-				'custom settings' => FALSE,
-			),
-		),
-	);
-
-	return $return;
-}
-
-function brother_uri($bid) {
-	return array(
-		'path' => 'brother/' . $brother->bid,
-	);
-}
-
 function brother_menu() {
 	$items = array();
 	
@@ -110,6 +68,48 @@ function brother_menu() {
 	);
 	
 	return $items;
+}
+
+/**
+ * Methods for the brother entity.
+ */
+function brother_entity_info() {
+	$return = array();
+	$return['brother'] = array(
+		'label'            => t('Brother'),
+		'controller class' => 'BrotherController',
+		'base table'       => 'brother',
+		'uri callback'     => 'brother_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'bid',
+			'bundle' => 'brother',
+			'label'  => 'brother',
+		),
+		'bundle keys' => array(
+			'bundle' => 'brother',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'brother',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
+
+	return $return;
+}
+
+function brother_uri($bid) {
+	return array(
+		'path' => 'brother/' . $brother->bid,
+	);
 }
 
 function brother_load($bid = NULL, $reset = FALSE) {
