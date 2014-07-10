@@ -291,18 +291,20 @@ function brother_form($form, &$form_state, $brother) {
 		'#weight' => 16,
   );
   
+  /* Add phone info here */
+  
  
 	$form['cong_resp'] = array(
     '#type' => 'fieldset',
     '#title' => t('Congregation Responsibilities'),
-    '#weight' => 20,
+    '#weight' => 30,
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
 	);
 	$form['cong_resp']['cong'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('cong-resp-cong')),
-    '#weight' => 21,
+    '#weight' => 31,
   );
 	$form['cong_resp']['cong']['cid'] = array(
 		'#type' => 'select',
@@ -310,213 +312,213 @@ function brother_form($form, &$form_state, $brother) {
 		'#options' => get_congregation_list(),
 		'#default_value' => $brother->cid,
     '#attributes' => array('class' => array('cong-resp-cong-congregation')),
-		'#weight' => 22,
+		'#weight' => 32,
 	);
   $form['cong_resp']['elder_ms'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('cong-resp-elder-ms')),
-    '#weight' => 23,
+    '#weight' => 33,
   );
 	$form['cong_resp']['elder_ms']['elder'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('Elder'),
 		'#default_value' => ($brother->elder_ms == 2) ? 1 : 0,
     '#attributes' => array('class' => array('elder-ms-elder')),
-		'#weight' => 24,
+		'#weight' => 34,
 	);
 	$form['cong_resp']['elder_ms']['MS'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('MS'),
 		'#default_value' => ($brother->elder_ms == 1) ? 1 : 0,
     '#attributes' => array('class' => array('elder-ms-ms')),
-		'#weight' => 25,
+		'#weight' => 35,
 	);
   
   $form['cong_resp']['outgoing'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('cong-resp-outgoing')),
-    '#weight' => 26,
+    '#weight' => 36,
   );
 	$form['cong_resp']['outgoing']['out_elder'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('Outgoing speaker'),
 		'#default_value' => $brother->outgoing_sp,
     '#attributes' => array('class' => array('cong-resp-outgoing-sp')),
-		'#weight' => 27,
+		'#weight' => 37,
 	);
 	$form['cong_resp']['outgoing']['out_ms'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('Outgoing servant'),
 		'#default_value' => $brother->outgoing_ms,
     '#attributes' => array('class' => array('cong-resp-outgoing-ms')),
-		'#weight' => 28,
+		'#weight' => 38,
 	);
   
   $form['cong_resp']['col_1'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('cong-resp-col-1')),
-    '#weight' => 30,
+    '#weight' => 40,
   );
 	$form['cong_resp']['col_1']['cobe'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('COBE'),
 		'#default_value' => $brother->cobe,
-		'#weight' => 31,
+		'#weight' => 41,
 	);
 	$form['cong_resp']['col_1']['sec'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('Sec'),
 		'#default_value' => $brother->sec,
-		'#weight' => 32,
+		'#weight' => 42,
 	);
 	$form['cong_resp']['col_1']['so'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('SO'),
 		'#default_value' => $brother->so,
-		'#weight' => 33,
+		'#weight' => 43,
 	);
   
   $form['cong_resp']['col_2'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('cong-resp-col-2')),
-    '#weight' => 40,
+    '#weight' => 50,
   );
 	$form['cong_resp']['col_2']['ptc'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('PTC'),
 		'#default_value' => $brother->ptc,
-		'#weight' => 41,
+		'#weight' => 51,
 	);
 	$form['cong_resp']['col_2']['rbc'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('RBC'),
 		'#default_value' => $brother->rbc,
-		'#weight' => 42,
+		'#weight' => 52,
 	);
   
   $form['cong_resp']['col_3'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('cong-resp-col-3')),
-    '#weight' => 50,
+    '#weight' => 60,
   );
 	$form['cong_resp']['col_3']['wt_conductor'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('WT Conductor'),
 		'#default_value' => $brother->wt_conductor,
-		'#weight' => 51,
+		'#weight' => 61,
 	);
 	$form['cong_resp']['col_3']['chairman'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('Chairman'),
 		'#default_value' => $brother->chairman,
-		'#weight' => 52,
+		'#weight' => 62,
 	);
 	$form['cong_resp']['col_3']['wt_reader'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('WT Reader'),
 		'#default_value' => $brother->wt_reader,
-		'#weight' => 53,
+		'#weight' => 63,
 	);
   
   $form['cong_resp']['col_4'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('cong-resp-col-4')),
-    '#weight' => 60,
+    '#weight' => 64,
   );
   
  $form['availibility'] = array(
     '#type' => 'fieldset',
     '#title' => t('Availibility'),
-    '#weight' => 71,
+    '#weight' => 80,
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
 	);
   $form['availibility']['col_1'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('availibility-col-1')),
-    '#weight' => 72,
+    '#weight' => 81,
   );
 	$form['availibility']['col_1']['active'] = array(
-		'#type'          => 'checkbox',
-		'#title'         => t('Active'),
+		'#type' => 'checkbox',
+		'#title' => t('Active'),
 		'#default_value' => $brother->active,
-		'#weight'        => 73,
+		'#weight' => 82,
 	);
 	$form['availibility']['col_1']['available'] = array(
-		'#type'          => 'checkbox',
-		'#title'         => t('Available'),
+		'#type' => 'checkbox',
+		'#title' => t('Available'),
 		'#default_value' => $brother->active,
-		'#weight'        => 74,
+		'#weight' => 83,
 	);
   $form['availibility']['col_2'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('availibility-col-2')),
-    '#weight' => 75,
+    '#weight' => 84,
   );
 	$form['availibility']['col_2']['no_am_talks'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('No morning talks'),
 		'#default_value' => $brother->no_am_talks,
     '#attributes' => array('class' => array('availibility-no-am')),
-		'#weight' => 76,
+		'#weight' => 85,
 	);
 	$form['availibility']['col_2']['no_noon_talks'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('No midday talks'),
 		'#default_value' => $brother->no_noon_talks,
     '#attributes' => array('class' => array('availibility-no-noon')),
-		'#weight' => 77,
+		'#weight' => 86,
 	);
 	$form['availibility']['col_2']['no_pm_talks'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('No evening talks'),
 		'#default_value' => $brother->no_pm_talks,
     '#attributes' => array('class' => array('availibility-no-pm')),
-		'#weight' => 78,
+		'#weight' => 87,
 	);
   $form['availibility']['col_3'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('availibility-col-3')),
-    '#weight' => 79,
+    '#weight' => 88,
   );
 	$form['availibility']['col_3']['avail_notes'] = array(
 		'#type' => 'textarea',
 		'#title' => t('Availability notes'),
 		'#default_value' => $brother->avail_comment,
     '#attributes' => array('class' => array('availibility-notes')),
-		'#weight' => 80,
+		'#weight' => 89,
 	);
   
  $form['comments'] = array(
     '#type' => 'fieldset',
     '#title' => t('Other notes'),
-    '#weight' => 90,
+    '#weight' => 100,
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
 	);
   $form['comments']['col_1'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('comments-col-1')),
-    '#weight' => 91,
+    '#weight' => 101,
   );
 	$form['comments']['col_1']['rating'] = array(
 		'#type' => 'textarea',
 		'#title' => t('Brother rating'),
 		'#default_value' => $brother->rating,
     '#attributes' => array('class' => array('comments-rating')),
-		'#weight' => 92,
+		'#weight' => 102,
 	);
   $form['comments']['col_2'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('comments-col-2')),
-    '#weight' => 93,
+    '#weight' => 103,
   );
 	$form['comments']['col_2']['notes'] = array(
 		'#type' => 'textarea',
 		'#title' => t('Other notes'),
 		'#default_value' => $brother->notes,
     '#attributes' => array('class' => array('comments-notes')),
-		'#weight' => 94,
+		'#weight' => 104,
 	);
 
 	$form['buttons'] = array();
@@ -524,7 +526,7 @@ function brother_form($form, &$form_state, $brother) {
 	$form['buttons']['submit'] = array(
 		'#type'   => 'submit',
 		'#value'  => t('Save'),
-		'#weight' => 101,
+		'#weight' => 125,
 		'#submit' => array('brother_form_submit'),
 	);
 	
@@ -533,7 +535,7 @@ function brother_form($form, &$form_state, $brother) {
 			'#type'   => 'submit',
 			'#value'  => t('Delete'),
 			'#access' => talk_access('delete', $brother),
-			'#weight' => 105,
+			'#weight' => 126,
 			'#submit' => array('brother_form_delete_submit'),
 		);
 	}

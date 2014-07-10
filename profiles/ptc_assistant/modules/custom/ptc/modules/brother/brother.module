@@ -357,7 +357,6 @@ class BrotherController extends DrupalDefaultEntityController{
 	}
 }
 
-
 /**
  * Methods for the brother talk entity.
  */
@@ -454,6 +453,112 @@ class BrotherTalkController extends DrupalDefaultEntityController{
 				return FALSE;
 			}
 			module_invoke_all('entity_delete', $brother_talk, 'brother_talk');
+
+			cache_clear_all();
+			$this->resetCache();
+		}
+		return TRUE;
+	}
+}
+
+/**
+ * Methods for the brother phone entity.
+ */
+function brother_phone_uri($btid) {
+	return array(
+		'path' => 'brother_phone/' . $brother_phone->bpid,
+	);
+}
+
+function brother_phone_content($form, &$form_state) {
+	$path = current_path();	
+	$form = drupal_get_form('brother_phone_form');
+	
+	return $form;
+}
+
+function brother_phone_load($bpid = NULL, $reset = FALSE) {
+  $bpid = isset($bpid) ? array($bpid) : array();
+	$conditions = array();
+	$bpids = brother_load_multiple($bpid, $conditions, $reset);
+	return $bpids ? reset($bpids) : FALSE;
+}
+
+function brother_phone_load_multiple($bpids = array(), $conditions = array(), $reset = FALSE) {
+	return entity_load('brother_phone', $bpids, $conditions, $reset);
+}
+
+function brother_phone_access($op, $brother_phone) {
+	global $user;
+	
+	if ($op == 'view' || $op == 'create' || $op == 'edit' || $op == 'update' || $op == 'delete') {
+    $access = user_access('administer talks', $user);
+  }
+	else {
+	  $access = FALSE;
+	}
+	
+	return $access;
+}
+
+class BrotherPhoneController extends DrupalDefaultEntityController{
+	
+	public function create($type = '') {
+		return (object)array(
+      'bpid'          => '',
+			'bid'           => '',
+			'phone_type'    => '',
+			'phone_number'  => '',
+      'phone_ext'     => '',
+      'long_distance' => '',
+      'prefered'      => '',
+			'is_new'        => TRUE,
+		);
+	}
+	
+	public function save($brother_phone) {
+		$transaction = db_transaction();
+
+		try{
+			if (isset($brother_phone->is_new) && $brother_phone->is_new) {
+				drupal_write_record('brother_phone', $brother_phone);
+				$op = 'insert';
+			}
+			else {
+				drupal_write_record('brother_phone', $brother_phone, 'btid');
+				$op = 'update';
+			}
+
+			module_invoke_all('entity_' . $op, $brother_phone, 'brother_phone');
+			$brother_phone->is_new = FALSE;
+			db_ignore_slave();
+			return $brother_phone;
+		}
+		catch (Exception $e) {
+			$transaction->rollback();
+			watchdog_exception('brother_phone', $e, NULL, WATCHDOG_ERROR);
+			return FALSE;
+		}
+	}
+	
+	public function delete($bpids) {
+		if (!empty($bpids)) {
+			$brother_phone = $this->load($bpids, array());
+			$brother_phone = db_transaction();
+			
+			try{
+				db_delete('brother_phone')
+					->condition('bpid', $bpids, 'IN')
+					->execute();
+
+				db_ignore_slave();
+			}
+			catch (Exception $e) {
+				$transaction->rollback();
+				watchdog_exception('brother_phone', $e, NULL, WATCHDOG_ERROR);
+				return FALSE;
+			}
+			module_invoke_all('entity_delete', $brother_phone, 'brother_phone');
 
 			cache_clear_all();
 			$this->resetCache();

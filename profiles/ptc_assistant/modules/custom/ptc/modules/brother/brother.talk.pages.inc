@@ -1,11 +1,6 @@
 <?php
 
-function brother_brother_talk() {
-  // Use path to get the brother's ID
-  $path = current_path();
-  $parts = explode('/', $path);
-  $bid = $parts[1];
-
+function brother_brother_talk($bid) {
   //Create a list of headers for the Html table
   $header = array(		
 	  array('data' => 'Talk ID', 'field' => 'tid'),
@@ -56,7 +51,11 @@ function brother_brother_talk() {
 
 function brother_talk_form($form, &$form_state, $brother_talk = NULL) {
 	module_load_include('inc', 'ptc', 'ptc.pages');
-	
+  // Use path to get the brother's ID
+  $path = current_path();
+  $parts = explode('/', $path);
+  $bid = $parts[1];
+
 	$form['#id'] = 'brother-talk-form';
 	$form['#brother_talk'] = $brother_talk;
 	$form_state['brother_talk'] = $brother_talk;
@@ -69,32 +68,60 @@ function brother_talk_form($form, &$form_state, $brother_talk = NULL) {
 	$form['brother_talk_table']['brother_talk_list'] = array(
     '#type' => 'markup',
     '#prefix' => '<div class="brother-talk-list">',
-    '#markup' => brother_brother_talk(),
+    '#markup' => brother_brother_talk($bid),
     '#suffix' => '</div>',
     '#weight' => 1,
 	);
   
 	$form['buttons'] = array();
 	$form['buttons']['#weight'] = 100;
-	$form['buttons']['submit'] = array(
+  
+  $form['buttons']['submit'] = array(
 		'#type'   => 'submit',
-		'#value'  => t('Add Talk'),
-		'#weight' => 101,
-		'#submit' => array('brother_talk_form_submit'),
+		'#value'  => t('Add Talk(s)'),
+		'#weight' => 103,
+		//'#submit' => array('brother_talk_form_add'),
+    '#submit' => drupal_get_form('brother_talk_form_add'),
 	);
-	
-	if (!empty($brother->bid)) {  // move this to a button on each line
-		$form['buttons']['delete'] = array(
-			'#type'   => 'submit',
-			'#value'  => t('Delete'),
-			'#access' => talk_access('delete', $brother),
-			'#weight' => 105,
-			'#submit' => array('brother_talk_form_delete_submit'),
-		);
-	}
+		
+  $form['buttons']['delete'] = array(
+    '#type'   => 'submit',
+    '#value'  => t('Delete talk(s)'),
+    '#access' => talk_access('delete', $brother),
+    '#weight' => 105,
+    '#submit' => array('brother_talk_form_delete'),
+  );
   
 	$form['#validate'][] = 'brother_talk_form_validate';
 	return $form;
+}
+
+/*
+ * No validation needed for this form.
+ */
+function brother_talk_form_validate($form, &$form_state) {
+}
+
+function brother_talk_form_add($form, &$form_state) {
+  $form['#id'] = 'brother-talk-form-add';
+	$form['#brother_talk'] = $brother;
+	$form_state['brother_talk'] = $brother;
+  
+}
+
+function brother_talk_form_add_submit($form, &$form_state) {
+}
+
+function brother_talk_form_add_validate($form, &$form_state) {
+}
+
+function brother_talk_form_delete($form, &$form_state) {
+}
+
+function brother_talk_form_delete_submit($form, &$form_state) {
+}
+
+function brother_talk_form_delete_validate() {
 }
 
 /**
