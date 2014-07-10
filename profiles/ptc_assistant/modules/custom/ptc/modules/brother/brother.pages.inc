@@ -201,7 +201,7 @@ function brother_form($form, &$form_state, $brother) {
 	$form['#brother'] = $brother;
 	$form_state['brother'] = $brother;
   
-	$form['brother_info']=array(
+	$form['brother_info'] = array(
     '#type' => 'fieldset',
     '#title' => t('Personal Info'),
     '#attributes' => array('class' => array('brother-info')),
@@ -209,7 +209,7 @@ function brother_form($form, &$form_state, $brother) {
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
 	);
-  $form['brother_info']['container1']=array(
+  $form['brother_info']['container1'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('brother-name-line')),
     '#weight' => 2,

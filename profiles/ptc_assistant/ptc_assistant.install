@@ -123,14 +123,12 @@ function ptc_assistant_install() {
   db_update('system')
     ->fields(array('status' => 1))
     ->condition('type', 'theme')
-    ->condition('name', 'pixture_reloaded')
+    ->condition('name', $admin_theme)
     ->execute();
   variable_set('admin_theme', $admin_theme);
   variable_set('node_admin_theme', '0');
 	
   // Set color scheme
-  //variable_set('color_pixture_reloaded_palette', 'forestgreen');
-  
   $scheme  = 'forestgreen';
 
   $form = array();

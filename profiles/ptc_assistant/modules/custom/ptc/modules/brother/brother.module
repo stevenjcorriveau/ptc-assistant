@@ -102,6 +102,34 @@ function brother_entity_info() {
 			),
 		),
 	);
+  
+	$return['brother_talk'] = array(
+		'label'            => t('Brother Talk'),
+		'controller class' => 'BrotherTalkController',
+		'base table'       => 'brother_talk',
+		'uri callback'     => 'brother_talk_uri',
+		'fieldable'        => FALSE,
+		'entity keys'      => array(
+			'id'     => 'btid',
+			'bundle' => 'brother_talk',
+			'label'  => 'brother_talk',
+		),
+		'bundle keys' => array(
+			'bundle' => 'brother_talk',
+		),
+		'static cache' => TRUE,
+		'bundles'      => array('label' => 'brother_talk',),
+		'view modes'   => array(
+			'full' => array(
+				'label' => t('Full content'),
+				'custom settings' => FALSE,
+			),
+			'teaser' => array(
+				'label' => t('Teaser'),
+				'custom settings' => FALSE,
+			),
+		),
+	);
 
 	return $return;
 }
@@ -148,8 +176,8 @@ function brother_block_info() {
     'cache' => DRUPAL_NO_CACHE,
   );
 	
-  $blocks['brother_talks'] = array(
-    'info' => t('Brother talks'),
+  $blocks['brother_talk'] = array(
+    'info' => t('Brother talk'),
 		'status' => TRUE,
     'cache' => DRUPAL_NO_CACHE,
   );
@@ -161,13 +189,20 @@ function brother_block_info() {
  * Implements hook_block_info_alter().
  */
 function brother_block_info_alter(&$blocks, $theme, $code_blocks) {
-	//dsm($blocks, 'blocks');
 	if (isset($blocks['brother']['brother_settings'])) {
-		if ($blocks['brother']['brother_settings']['theme'] == 'garland') {
+		if ($blocks['brother']['brother_settings']['theme'] == 'ptca_theme') {
 			$blocks['brother']['brother_settings']['region'] = 'sidebar_second';
+      $blocks['brother']['brother_settings']['visibility'] = BLOCK_VISIBILITY_LISTED;
+      $blocks['brother']['brother_settings']['pages'] = 'setup/brothers/brother';
 		}
 	}
-	//dsm($blocks, 'blocks after alter');
+	if (isset($blocks['brother']['brother_talk'])) {
+		if ($blocks['brother']['brother_talk']['theme'] == 'ptca_theme') {
+			$blocks['brother']['brother_talk']['region'] = 'sidebar_second';
+      $blocks['brother']['brother_talk']['visibility'] = BLOCK_VISIBILITY_LISTED;
+      $blocks['brother']['brother_talk']['pages'] = 'brother/*/edit';
+		}
+	}
 }
 
 /**
@@ -178,22 +213,14 @@ function brother_block_view($delta = '') {
 	
 	switch ($delta) {
     case 'brother_settings':
-			$form = drupal_get_form('brother_settings_content');
-			
-			if (isset($form['buttons'])) {
-				$block['subject'] = t('Brother settings');
-				$block['content'] = $form;
-			}
+			$form = drupal_get_form('brother_settings_content');			
+			$block['subject'] = t('Brother settings');
+      $block['content'] = $form;
       break;
-    case 'brother_talks':
-    /*
-			$form = drupal_get_form('brother_talks_content');
-			
-			if (isset($form['buttons'])) {
-				$block['subject'] = t('Talks Given');
-				$block['content'] = $form;
-			}
-      */
+    case 'brother_talk':
+			$form = drupal_get_form('brother_talk_content');      
+			$block['subject'] = t('Talks Given');
+      $block['content'] = $form;        
       break;
 	}
 	
@@ -334,49 +361,16 @@ class BrotherController extends DrupalDefaultEntityController{
 /**
  * Methods for the brother talk entity.
  */
-function brother_talk_entity_info() {
-	$return = array();
-	$return['brother'] = array(
-		'label'            => t('Brother Talk'),
-		'controller class' => 'BrotherTalkController',
-		'base table'       => 'brother_talk',
-		'uri callback'     => 'brother_talk_uri',
-		'fieldable'        => FALSE,
-		'entity keys'      => array(
-			'id'     => 'btid',
-			'bundle' => 'brother_talk',
-			'label'  => 'brother_talk',
-		),
-		'bundle keys' => array(
-			'bundle' => 'brother_talk',
-		),
-		'static cache' => TRUE,
-		'bundles'      => array('label' => 'brother_talk',),
-		'view modes'   => array(
-			'full' => array(
-				'label' => t('Full content'),
-				'custom settings' => FALSE,
-			),
-			'teaser' => array(
-				'label' => t('Teaser'),
-				'custom settings' => FALSE,
-			),
-		),
-	);
-
-	return $return;
-}
-
 function brother_talk_uri($btid) {
 	return array(
 		'path' => 'brother_talk/' . $brother->btid,
 	);
 }
 
-function brother_talks_content($form, &$form_state) {
-	module_load_include('inc', 'brother', 'brother.talks.pages');
+function brother_talk_content($form, &$form_state) {
+	module_load_include('inc', 'brother', 'brother.talk.pages');
 	$path = current_path();	
-	$form = drupal_get_form(brother_talks);
+	$form = drupal_get_form('brother_talk_form');
 	
 	return $form;
 }
