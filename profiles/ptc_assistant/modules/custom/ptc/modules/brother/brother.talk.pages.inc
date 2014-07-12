@@ -87,7 +87,7 @@ function brother_talk_form($form, &$form_state, $brother_talk = NULL) {
   $form['buttons']['delete'] = array(
     '#type'   => 'submit',
     '#value'  => t('Delete talk(s)'),
-    '#access' => talk_access('delete', $brother),
+    '#access' => talk_access('delete', $brother_talk),
     '#weight' => 105,
     '#submit' => array('brother_talk_form_delete'),
   );
@@ -102,10 +102,19 @@ function brother_talk_form($form, &$form_state, $brother_talk = NULL) {
 function brother_talk_form_validate($form, &$form_state) {
 }
 
-function brother_talk_form_add($form, &$form_state) {
+function brother_talk_form_add($form, &$form_state, $bid) {
   $form['#id'] = 'brother-talk-form-add';
-	$form['#brother_talk'] = $brother;
-	$form_state['brother_talk'] = $brother;
+	$form['#brother_talk'] = NULL;
+	$form_state['brother_talk'] = NULL;
+  
+  $form['brother_talk_form'] = array(
+    '#type' => 'container',
+    '#attributes' => array('class' => array('brother-talk-form')),
+    '#weight' => 1,
+  );
+  
+  
+  
   
 }
 
