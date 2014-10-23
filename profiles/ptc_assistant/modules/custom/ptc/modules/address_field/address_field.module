@@ -1,0 +1,380 @@
+<?php
+
+/**
+ * Implements hook_field_info()
+ */
+function address_field_field_info() {
+  $fields = array();
+
+  $fields['address_field'] = array(
+    'label' => t('Postal address'),
+    'description' => t('A field type used for storing postal addresses.'),
+    'settings' => array(),
+    'instance_settings' => array(),
+    'default_widget' => 'address_field_standard',
+    'default_formatter' => 'address_field_default',
+    'property_type' => 'address_field',
+    'property_callbacks' => array('address_field_property_info_callback'),
+  );
+
+  return $fields;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function address_field_field_formatter_info() {
+  return array(
+    'address_field_default' => array(
+      'label' => t('Default'),
+      'field types' => array('address_field'),
+      'settings' => array(
+        'use_widget_handlers' => 1,
+        'format_handlers' => array('address'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function address_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
+  $element = array();
+
+  switch ($display['type']) {
+    case 'address_field_default':
+      if (!empty($settings['use_widget_handlers'])) {
+        $handlers = $instance['widget']['settings']['format_handlers'];
+      }
+      else {
+        $handlers = $settings['format_handlers'];
+      }  
+
+      // Generate the address form.
+      $element['address'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Address'),
+        '#attributes' => array('class' => array('address')),
+        '#weight' => 1,
+        '#collapsible' => FALSE,
+        '#collapsed' => FALSE,
+      );
+      $element['address']['street'] = array(
+        '#type' => 'markup',
+        '#markup' => '<div>Street: ' . $items['address']['street'] . '</div>',
+        '#attributes' => array('class' => array('address-street-view')),
+        '#weight' => 2,
+      );
+      $element['address']['apt'] = array(
+        '#type' => 'markup',
+        '#markup' => '<div>Apt/Suite: ' . $items['address']['apt'] . '</div>',
+        '#attributes' => array('class' => array('address-apt-view')),
+        '#weight' => 3,
+      );
+      $element['address']['locality'] = array(
+        '#type' => 'container',
+        '#attributes' => array('class' => array('address-locality')),
+        '#weight' => 4,
+      );
+      $element['address']['locality']['city'] = array(
+        '#type' => 'markup',
+        '#markup' => '<div>City: ' . $items['address']['locality']['city'] . '</div>',
+        '#attributes' => array('class' => array('address-city')),
+        '#weight' => 5,
+      );
+      $element['address']['locality']['state'] = array(
+        '#type' => 'markup',
+        '#markup' => '<div>State: ' . $items['address']['locality']['state'] . '</div>',
+        '#weight' => 6,
+      );
+      $element['address']['locality']['zipcode'] = array(
+        '#type' => 'markup',
+        '#markup' => '<div>Zipcode: ' . $items['address']['locality']['zipcode'] . '</div>',
+        '#attributes' => array('class' => array('address-zipcode')),
+        '#weight' => 7,
+      );
+      $element['address']['locality']['country'] = array(
+        '#type' => 'markup',
+        '#markup' => '<div>Country: ' . $items['country'] . '</div>',
+        '#attributes' => array('class' => array('address-country')),
+        '#weight' => 8,
+      );
+  
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Callback to alter the property info of address fields.
+ *
+ * @see addressfield_field_info().
+ */
+function address_field_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
+  $name = $field['field_name'];
+  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$name];
+
+  $property['type'] = ($field['cardinality'] != 1) ? 'list<address_field>' : 'address_field';
+  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
+  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
+  $property['auto creation'] = 'addressfield_default_values';
+  $property['property info'] = address_field_data_property_info();
+
+  unset($property['query callback']);
+}
+
+/**
+ * Defines info for the properties of the address field data structure.
+ */
+function address_field_data_property_info($name = NULL) {
+  // Build an array of basic property information for the address field.
+  $properties = array(
+    'street' => array(
+      'label' => t('Street'),
+    ),
+    'apartment' => array(
+      'label' => t('Apartment/Suite number'),
+    ),
+    'city' => array(
+      'label' => t('City'),
+    ),
+    'state' => array(
+      'label' => t('State'),
+    ),
+    'zip_code' => array(
+      'label' => t('Zipcode'),
+    ),
+    'country' => array(
+      'label' => t('Country'),
+    ),
+  );
+
+  // Add the default values for each of the address field properties.
+  foreach ($properties as $key => &$value) {
+    $value += array(
+      'description' => !empty($name) ? t('!label of field %name', array('!label' => $value['label'], '%name' => $name)) : '',
+      'type' => 'text',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+    );
+  }
+
+  return $properties;
+}
+
+/**
+ * Implements hook_field_widget_info()
+ */
+function address_field_field_widget_info() {
+  $widgets = array();
+
+  $widgets['address_field_standard'] = array(
+    'label' => t('Address form'),
+    'field types' => array('address_field'),
+    'settings' => array(
+      'available_countries' => array(),
+      'format_handlers' => array('address'),
+    ),
+  );
+
+  return $widgets;
+}
+
+/**
+ * Implements hook_field_widget_form()
+ */
+function address_field_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $settings = $instance['widget']['settings'];
+
+  // Generate a specific key used to identify this element to restore a default
+  // value upon AJAX submission regardless of where this element is in the
+  // $form array.
+  $element_key = implode('|', array($element['#entity_type'], $element['#bundle'], $element['#field_name'], $element['#language'], $element['#delta']));
+
+  // Store the key in the element array as a value so it can be easily retrieved
+  // in context in the $form_state['values'] array in the element validator.
+  $element['element_key'] = array(
+    '#type' => 'value',
+    '#value' => $element_key,
+  );
+
+  // Add the form elements for the standard widget.
+  if ($instance['widget']['type'] == 'address_field_standard') {
+    // Generate the address form.
+    $element['address'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Address'),
+      '#attributes' => array('class' => array('address')),
+      '#weight' => 1,
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+    );
+    $element['address']['street'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Street: '),
+      '#default_value' => $items['address']['street'],
+      '#size' => 50,
+      '#maxlength' => 50,
+      '#attributes' => array('class' => array('address-street')),
+      '#weight' => 2,
+    );
+    $element['address']['apt'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Apt/Suite: '),
+      '#default_value' => $items['address']['apt'],
+      '#size' => 50,
+      '#maxlength' => 50,
+      '#attributes' => array('class' => array('address-apt')),
+      '#weight' => 3,
+    );
+    $element['address']['locality'] = array(
+      '#type' => 'container',
+      '#attributes' => array('class' => array('address-locality')),
+      '#weight' => 4,
+    );
+    $element['address']['locality']['city'] = array(
+      '#type' => 'textfield',
+      '#title' => t('City: '),
+      '#default_value' => $items['address']['locality']['city'],
+      '#size' => 50,
+      '#maxlength' => 50,
+      '#attributes' => array('class' => array('address-city')),
+      '#weight' => 5,
+    );
+    $element['address']['locality']['state'] = array(
+      '#type' => 'select',
+      '#title' => t('State: '),
+      '#options' => address_field_get_state_options(),
+      '#default_value' => $items['address']['locality']['state'],
+      '#weight' => 6,
+    );
+    $element['address']['locality']['zipcode'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Zipcode: '),
+      '#default_value' => $items['address']['locality']['zipcode'],
+      '#size' => 10,
+      '#maxlength' => 10,
+      '#attributes' => array('class' => array('address-zipcode')),
+      '#weight' => 7,
+    );
+    $element['address']['locality']['country'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Country: '),
+      '#default_value' => $items['country'],
+      '#size' => 2,
+      '#maxlength' => 2,
+      '#attributes' => array('class' => array('address-country')),
+      '#weight' => 8,
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function address_field_field_is_empty($item, $field) {
+  // We do not need to check for empty values.
+  return false;
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function address_field_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] == 'address_field') {
+    foreach ($items as $delta => &$item) {
+      $new_item = array(
+        'country' => $item['address']['locality']['country'],
+        'state' => $item['address']['locality']['state'],
+        'city' => $item['address']['locality']['city'],
+        'zip_code' => $item['address']['locality']['zipcode'],
+        'street' => $item['address']['street'],
+        'apartment' => $item['address']['apt'],
+      );
+    }
+    $item = $new_item;
+  }
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function address_field_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  if ($field['type'] == 'address_field') {
+    foreach ($items as $delta => &$item) {
+      $new_item = array(
+        'country' => $item[0]['country'],
+        'address' => array(
+          'locality' => array(
+            'state' => $item[0]['state'],
+            'city' => $item[0]['city'],
+            'zipcode' => $item[0]['zip_code'],
+          ),
+          'street' => $item[0]['street'],
+          'apt' => $item[0]['apartment'],
+        ),
+      );
+    }
+    $item = $new_item;
+  }
+}
+
+function address_field_get_state_options() {
+  return array(
+    '' => t('None'),
+    'AL' => t('Alabama'),
+    'AK' => t('Alaska'),
+    'AZ' => t('Arizona'),
+    'AR' => t('Arkansas'),
+    'CA' => t('California'),
+    'CO' => t('Colorado'),
+    'CT' => t('Connecticut'),
+    'DE' => t('Delaware'),
+    'FL' => t('Florida'),
+    'GA' => t('Georgia'),
+    'HI' => t('Hawaii'),
+    'ID' => t('Idaho'),
+    'IL' => t('Illinois'),
+    'IN' => t('Indiana'),
+    'IA' => t('Iowa'),
+    'KS' => t('Kansas'),
+    'KY' => t('Kentucky'),
+    'LA' => t('Louisiana'),
+    'ME' => t('Maine'),
+    'MD' => t('Maryland'),
+    'MA' => t('Massachusetts'),
+    'MI' => t('Michigan'),
+    'MN' => t('Minnesota'),
+    'MS' => t('Mississippi'),
+    'MO' => t('Missouri'),
+    'MT' => t('Montana'),
+    'NE' => t('Nebraska'),
+    'NV' => t('Nevada'),
+    'NH' => t('New Hampshire'),
+    'NJ' => t('New Jersey'),
+    'NM' => t('New Mexico'),
+    'NY' => t('New York'),
+    'NC' => t('North Carolina'),
+    'ND' => t('North Dakota'),
+    'OH' => t('Ohio'),
+    'OK' => t('Oklahoma'),
+    'OR' => t('Oregon'),
+    'PA' => t('Pennsylvania'),
+    'RI' => t('Rhode Island'),
+    'SC' => t('South Carolina'),
+    'SD' => t('South Dakota'),
+    'TN' => t('Tennessee'),
+    'TX' => t('Texas'),
+    'UT' => t('Utah'),
+    'VT' => t('Vermont'),
+    'VA' => t('Virginia'),
+    'WA' => t('Washington'),
+    'WV' => t('West Virginia'),
+    'WI' => t('Wisconsin'),
+    'WY' => t('Wyoming'),
+  );
+}

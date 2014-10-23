@@ -1,0 +1,5 @@
+name = Address Field
+description = Simple address field with widget.
+core = 7.x
+package = PTC
+

@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Implements hook_field_schema()
+ */
+function address_field_field_schema() {
+  $columns = array(
+    'street' => array(
+      'description' => 'The street of this address.',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'apartment' => array(
+      'description' => 'The apartment/suite number of this address.',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'city' => array(
+      'description' => 'The city of this address.',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'state' => array(
+      'description' => 'The state of this address.',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'zip_code' => array(
+      'description' => 'The zip code of this address.',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'country' => array(
+      'description' => 'Two letter ISO country code of this address.',
+      'type' => 'varchar',
+      'length' => 2,
+      'not null' => FALSE,
+      'default' => '',
+    ),
+  );
+
+  return array(
+    'columns' => $columns,
+  );
+}
+
