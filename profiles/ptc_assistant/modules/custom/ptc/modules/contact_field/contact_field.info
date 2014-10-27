@@ -1,0 +1,4 @@
+name = Contact Field
+description = Contact field with widget.  Provides two home, two cell, and one work number.  Can also enter two emails.
+core = 7.x
+package = PTC

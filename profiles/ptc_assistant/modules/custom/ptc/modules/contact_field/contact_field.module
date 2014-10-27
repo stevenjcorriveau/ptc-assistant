@@ -1,0 +1,443 @@
+<?php
+
+/**
+ * Implements hook_field_info()
+ */
+function contact_field_field_info() {
+  $fields = array();
+
+  $fields['contact_field'] = array(
+    'label' => t('Contact numbers'),
+    'description' => t('A field type used for storing contact numbers.'),
+    'settings' => array(),
+    'instance_settings' => array(),
+    'default_widget' => 'contact_field_standard',
+    'default_formatter' => 'contact_field_default',
+    'property_type' => 'contact_field',
+    'property_callbacks' => array('contact_field_property_info_callback'),
+  );
+
+  return $fields;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function contact_field_field_formatter_info() {
+  return array(
+    'contact_field_default' => array(
+      'label' => t('Default'),
+      'field types' => array('contact_field'),
+      'settings' => array(
+        'use_widget_handlers' => 1,
+        'format_handlers' => array('contact'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function contact_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
+  $element = array();
+
+  switch ($display['type']) {
+    case 'contact_field_default':
+      if (!empty($settings['use_widget_handlers'])) {
+        $handlers = $instance['widget']['settings']['format_handlers'];
+      }
+      else {
+        $handlers = $settings['format_handlers'];
+      }  
+      
+      $element['contact'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Contact Info'),
+        '#attributes' => array('class' => array('contact-view')),
+        '#weight' => 1,
+        '#collapsible' => FALSE,
+        '#collapsed' => FALSE,
+      );
+      $element['contact']['phones'] = array(
+        '#type' => 'container',
+        '#attributes' => array('class' => array('contact-phones-view')),
+        '#weight' => 2,
+      );
+      $element['contact']['phones']['numbers'] = array(
+        '#type' => 'container',
+        '#attributes' => array('class' => array('contact-phones-numbers-view')),
+        '#weight' => 5,
+      );
+      $element['contact']['phones']['numbers']['home_one'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>Primary home: ' . $items['contact']['phones']['numbers']['home_one'] . '</p>',
+        '#attributes' => array('class' => array('contact-home-one-view')),
+        '#weight' => 6,
+      );
+      $element['contact']['phones']['numbers']['home_two'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>Secondary home: ' . $items['contact']['phones']['numbers']['home_two'] . '</p>',
+        '#attributes' => array('class' => array('contact-home-two-view')),
+        '#weight' => 7,
+      );
+      $element['contact']['phones']['numbers']['cell_one'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>Primary cell: ' . $items['contact']['phones']['numbers']['cell_one'] . '</p>',
+        '#attributes' => array('class' => array('contact-cell-one-view')),
+        '#weight' => 8,
+      );
+      $element['contact']['phones']['numbers']['cell_two'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>Secondary cell: ' . $items['contact']['phones']['numbers']['cell_two'] . '</p>',
+        '#attributes' => array('class' => array('contact-cell-two-view')),
+        '#weight' => 9,
+      );
+      $element['contact']['phones']['numbers']['work_line'] = array(
+        '#type' => 'container',
+        '#attributes' => array('class' => array('contact-phones-numbers-work-line')),
+        '#weight' => 10,
+      );
+      $element['contact']['phones']['numbers']['work_line']['work'] = array(
+        '#type' => 'markup',
+        '#markup' => 'Work: ' . $items['contact']['phones']['numbers']['work_line']['work'],
+        '#attributes' => array('class' => array('contact-work-view')),
+        '#weight' => 11,
+      );
+      $element['contact']['phones']['numbers']['work_line']['work_ext'] = array(
+        '#type' => 'markup',
+        '#markup' => '   Ext: ' . $items['contact']['phones']['numbers']['work_line']['work_ext'],
+        '#attributes' => array('class' => array('contact-work-ext-view')),
+        '#weight' => 12,
+      );
+      $element['contact']['email'] = array(
+        '#type' => 'container',
+        '#attributes' => array('class' => array('contact-email')),
+        '#weight' => 13,
+      );
+      $element['contact']['email']['email_one'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>Primary Email: ' . $items['contact']['email']['email_one'] . '</p>',
+        '#attributes' => array('class' => array('contact-email-one-view')),
+        '#weight' => 14,
+      );
+      $element['contact']['email']['email_two'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>Secondary Email: ' . $items['contact']['email']['email_two'] . '</p>',
+        '#attributes' => array('class' => array('contact-email-two-view')),
+        '#weight' => 15,
+      );
+      $element['contact']['notes'] = array(
+        '#type' => 'markup',
+        '#markup' => 'Contact Notes: ' . $items['contact']['notes'],
+        '#attributes' => array('class' => array('contact-notes-view')),
+        '#weight' => 16,
+      );
+  
+      break;      
+  }
+
+  return $element;
+}
+
+/**
+ * Callback to alter the property info of contact fields.
+ */
+function contact_field_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
+  $name = $field['field_name'];
+  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$name];
+
+  $property['type'] = ($field['cardinality'] != 1) ? 'list<contact_field>' : 'contact_field';
+  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
+  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
+  $property['auto creation'] = 'addressfield_default_values';
+  $property['property info'] = contact_field_data_property_info();
+
+  unset($property['query callback']);
+}
+
+/**
+ * Defines info for the properties of the contact field data structure.
+ */
+function contact_field_data_property_info($name = NULL) {
+  // Build an array of basic property information for the contact field.
+  $properties = array(
+    'prefered' => array(
+      'label' => t('Prefered'),
+    ),
+    'home_one' => array(
+      'label' => t('Primary home number'),
+    ),
+    'home_two' => array(
+      'label' => t('Secondary home number'),
+    ),
+    'cell_one' => array(
+      'label' => t('Primary cell number'),
+    ),
+    'cell_two' => array(
+      'label' => t('Secondary cell number'),
+    ),
+    'work' => array(
+      'label' => t('Work number'),
+    ),
+    'work_ext' => array(
+      'label' => t('Work extension'),
+    ),
+    'email_one' => array(
+      'label' => t('Primary email'),
+    ),
+    'email_two' => array(
+      'label' => t('Secondary email'),
+    ),
+    'notes' => array(
+      'label' => t('Contact notes'),
+    ),
+  );
+
+  // Add the default values for each of the contact field properties.
+  foreach ($properties as $key => &$value) {
+    $value += array(
+      'description' => !empty($name) ? t('!label of field %name', array('!label' => $value['label'], '%name' => $name)) : '',
+      'type' => 'text',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+    );
+  }
+
+  return $properties;
+}
+
+/**
+ * Implements hook_field_widget_info()
+ */
+function contact_field_field_widget_info() {
+  $widgets = array();
+
+  $widgets['contact_field_standard'] = array(
+    'label' => t('Contact form'),
+    'field types' => array('contact_field'),
+    'settings' => array(
+      'available_countries' => array(),
+      'format_handlers' => array('contact'),
+    ),
+  );
+
+  return $widgets;
+}
+
+/**
+ * Implements hook_field_widget_form()
+ */
+function contact_field_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  drupal_add_css(drupal_get_path('module', 'contact_field') . '/css/contact_field.css');
+  $settings = $instance['widget']['settings'];
+
+  // Generate a specific key used to identify this element to restore a default
+  // value upon AJAX submission regardless of where this element is in the
+  // $form array.
+  $element_key = implode('|', array($element['#entity_type'], $element['#bundle'], $element['#field_name'], $element['#language'], $element['#delta']));
+
+  // Store the key in the element array as a value so it can be easily retrieved
+  // in context in the $form_state['values'] array in the element validator.
+  $element['element_key'] = array(
+    '#type' => 'value',
+    '#value' => $element_key,
+  );
+  
+  $options = array(
+    '0' => 'Primary home:',
+    '1' => 'Secondary home:',
+    '2' => 'Primary cell:',
+    '3' => 'Secondary cell:',
+    '4' => 'Work:',
+  );
+
+  // Add the form elements for the standard widget.
+  if ($instance['widget']['type'] == 'contact_field_standard') {
+    // Generate the address form.
+    $element['contact'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Contact Info'),
+      '#attributes' => array('class' => array('contact')),
+      '#weight' => 1,
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+    );
+    $element['contact']['phones'] = array(
+      '#type' => 'container',
+      '#attributes' => array('class' => array('contact-phones')),
+      '#weight' => 2,
+    );
+    $element['contact']['phones']['pref'] = array(
+      '#type' => 'radios',
+      '#title' => t('Preferred'),
+      '#default_value' => $items['contact']['phones']['pref'],
+      '#options' => $options,
+      '#attributes' => array('class' => array('contact-phone-pref')),
+      '#weight' => 4,
+    );
+    $element['contact']['phones']['numbers'] = array(
+      '#type' => 'container',
+      '#attributes' => array('class' => array('contact-phones-numbers')),
+      '#weight' => 5,
+    );
+    $element['contact']['phones']['numbers']['home_one'] = array(
+      '#type' => 'textfield',
+      '#title' => t(''),
+      '#default_value' => $items['contact']['phones']['numbers']['home_one'],
+      '#size' => 13,
+      '#maxlength' => 13,
+      '#attributes' => array('class' => array('contact-home-one')),
+      '#weight' => 6,
+    );
+    $element['contact']['phones']['numbers']['home_two'] = array(
+      '#type' => 'textfield',
+      '#title' => t(''),
+      '#default_value' => $items['contact']['phones']['numbers']['home_two'],
+      '#size' => 13,
+      '#maxlength' => 13,
+      '#attributes' => array('class' => array('contact-home-two')),
+      '#weight' => 7,
+    );
+    $element['contact']['phones']['numbers']['cell_one'] = array(
+      '#type' => 'textfield',
+      '#title' => t(''),
+      '#default_value' => $items['contact']['phones']['numbers']['cell_one'],
+      '#size' => 13,
+      '#maxlength' => 13,
+      '#attributes' => array('class' => array('contact-cell-one')),
+      '#weight' => 8,
+    );
+    $element['contact']['phones']['numbers']['cell_two'] = array(
+      '#type' => 'textfield',
+      '#title' => t(''),
+      '#default_value' => $items['contact']['phones']['numbers']['cell_two'],
+      '#size' => 13,
+      '#maxlength' => 13,
+      '#attributes' => array('class' => array('contact-cell-two')),
+      '#weight' => 9,
+    );
+    $element['contact']['phones']['numbers']['work_line'] = array(
+      '#type' => 'container',
+      '#attributes' => array('class' => array('contact-phones-numbers-work-line')),
+      '#weight' => 10,
+    );
+    $element['contact']['phones']['numbers']['work_line']['work'] = array(
+      '#type' => 'textfield',
+      '#title' => t(''),
+      '#default_value' => $items['contact']['phones']['numbers']['work_line']['work'],
+      '#size' => 13,
+      '#maxlength' => 13,
+      '#attributes' => array('class' => array('contact-work')),
+      '#weight' => 11,
+    );
+    $element['contact']['phones']['numbers']['work_line']['work_ext'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Ext: '),
+      '#default_value' => $items['contact']['phones']['numbers']['work_line']['work_ext'],
+      '#size' => 10,
+      '#maxlength' => 10,
+      '#attributes' => array('class' => array('contact-work-ext')),
+      '#weight' => 12,
+    );
+    $element['contact']['email'] = array(
+      '#type' => 'container',
+      '#attributes' => array('class' => array('contact-email')),
+      '#weight' => 13,
+    );
+    $element['contact']['email']['email_one'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Primary Email'),
+      '#default_value' => $items['contact']['email']['email_one'],
+      '#size' => 50,
+      '#maxlength' => 255,
+      '#attributes' => array('class' => array('contact-email-one')),
+      '#weight' => 14,
+    );
+    $element['contact']['email']['email_two'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Secondary Email'),
+      '#default_value' => $items['contact']['email']['email_two'],
+      '#size' => 50,
+      '#maxlength' => 255,
+      '#attributes' => array('class' => array('contact-email-two')),
+      '#weight' => 15,
+    );
+    $element['contact']['notes'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Contact Notes'),
+      '#default_value' => $items['contact']['notes'],
+      '#cols' => 50,
+      '#size' => 255,
+      '#maxlength' => 255,
+      '#attributes' => array('class' => array('contact-notes')),
+      '#weight' => 16,
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function contact_field_field_is_empty($item, $field) {
+  // We do not need to check for empty values.
+  return false;
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function contact_field_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] == 'contact_field') {
+    foreach ($items as $delta => &$item) {
+      $new_item = array(
+        'prefered' => $item['contact']['phones']['pref'],
+        'home_one' => $item['contact']['phones']['numbers']['home_one'],
+        'home_two' => $item['contact']['phones']['numbers']['home_two'],
+        'cell_one' => $item['contact']['phones']['numbers']['cell_one'],
+        'cell_two' => $item['contact']['phones']['numbers']['cell_two'],
+        'work' => $item['contact']['phones']['numbers']['work_line']['work'],
+        'work_ext' => $item['contact']['phones']['numbers']['work_line']['work_ext'],
+        'email_one' => $item['contact']['email']['email_one'],
+        'email_two' => $item['contact']['email']['email_two'],
+        'notes' => $item['contact']['notes'],
+      );
+    }
+    $item = $new_item;
+  }
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function contact_field_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  if ($field['type'] == 'contact_field') {
+    foreach ($items as $delta => &$item) {
+      $new_item = array(
+        'contact' => array(
+          'phones' => array(
+            'pref' => $item[0]['prefered'],
+            'numbers' => array(
+              'home_one' => $item[0]['home_one'],
+              'home_two' => $item[0]['home_two'],
+              'cell_one' => $item[0]['cell_one'],
+              'cell_two' => $item[0]['cell_two'],
+              'work_line' => array(
+                'work' => $item[0]['work'],
+                'work_ext' => $item[0]['work_ext'],
+              ),
+            ),
+          ),
+          'email' => array(
+            'email_one' => $item[0]['email_one'],
+            'email_two' => $item[0]['email_two'],
+          ),
+          'notes' => $item[0]['notes'],
+        ),
+      );
+    }
+    $item = $new_item;
+  }
+}

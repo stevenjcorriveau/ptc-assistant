@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * Implements hook_field_schema()
+ */
+function contact_field_field_schema() {
+  $columns = array(
+    'prefered' => array(
+      'description' => 'Indicates which number is preferred (if any)',
+      'type' => 'varchar',
+      'length' => 5,
+      'default' => 'HOME1',
+      'not null' => FALSE,
+    ),
+    'home_one' => array(
+      'description' => 'Primary home phone number.',
+      'type' => 'varchar',
+      'length' => 13,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'home_two' => array(
+      'description' => 'Secondary home phone number.',
+      'type' => 'varchar',
+      'length' => 13,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'cell_one' => array(
+      'description' => 'Primary cell phone number.',
+      'type' => 'varchar',
+      'length' => 13,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'cell_two' => array(
+      'description' => 'Secondary cell phone number.',
+      'type' => 'varchar',
+      'length' => 13,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'work' => array(
+      'description' => 'The work phone number.',
+      'type' => 'varchar',
+      'length' => 13,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'work_ext' => array(
+      'description' => 'The extension of the work phone.',
+      'type' => 'varchar',
+      'length' => 10,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'email_one' => array(
+      'description' => 'Primary email',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'email_two' => array(
+      'description' => 'Secondary email',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+    'notes' => array(
+      'description' => 'Contact notes',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => '',
+      'not null' => FALSE,
+    ),
+  );
+
+  return array(
+    'columns' => $columns,
+  );
+}
+
