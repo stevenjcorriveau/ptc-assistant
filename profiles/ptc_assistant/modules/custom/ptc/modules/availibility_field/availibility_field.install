@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * Implements hook_field_schema()
+ */
+function availibility_field_field_schema() {
+  $columns = array(
+    'available' => array(
+      'description' => 'Whether this speaker is available to go out on talks(1) or not(0)',
+      'type' => 'int',
+      'size' => 'tiny',
+      'default' => 1,
+      'not null' => FALSE,
+    ),
+    'active' => array(
+      'description' => 'Whether this speaker is active(1) or not(0).  Reasons for no longer being active are death, no longer serving as an elder or MS, etc.',
+      'type' => 'int',
+      'size' => 'tiny',
+      'default' => 1,
+      'not null' => FALSE,
+    ),
+    'no_morning_talks' => array(
+      'description' => 'Indicates if this speaker is not avaiable for morning talks (before noon).',
+      'type' => 'int',
+      'size' => 'tiny',
+      'default' => 1,
+      'not null' => FALSE,
+    ),
+    'no_midday_talks' => array(
+      'description' => 'Indicates if this speaker is not avaiable for midday talks (noon-2:59pm).',
+      'type' => 'int',
+      'size' => 'tiny',
+      'default' => 1,
+      'not null' => FALSE,
+    ),
+    'no_evening_talks' => array(
+      'description' => 'Indicates if this speaker is not avaiable for evening talks (after 3:00pm).',
+      'type' => 'int',
+      'size' => 'tiny',
+      'default' => 1,
+      'not null' => FALSE,
+    ),
+  );
+
+  return array(
+    'columns' => $columns,
+  );
+}
+

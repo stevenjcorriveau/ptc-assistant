@@ -1,0 +1,4 @@
+name = Availibility Field
+description = Availibility field with widget.  Provides information about a speaker's availability.
+core = 7.x
+package = PTC

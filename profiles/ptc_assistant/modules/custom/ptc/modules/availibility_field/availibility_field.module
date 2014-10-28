@@ -1,0 +1,291 @@
+<?php
+
+/**
+ * Implements hook_field_info()
+ */
+function availibility_field_field_info() {
+  $fields = array();
+
+  $fields['availibility_field'] = array(
+    'label' => t('Availibility'),
+    'description' => t('A field type used for storing availibility information.'),
+    'settings' => array(),
+    'instance_settings' => array(),
+    'default_widget' => 'availibility_field_standard',
+    'default_formatter' => 'availibility_field_default',
+    'property_type' => 'availibility_field',
+    'property_callbacks' => array('availibility_field_property_info_callback'),
+  );
+
+  return $fields;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function availibility_field_field_formatter_info() {
+  return array(
+    'availibility_field_default' => array(
+      'label' => t('Default'),
+      'field types' => array('availibility_field'),
+      'settings' => array(
+        'use_widget_handlers' => 1,
+        'format_handlers' => array('availibility'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function availibility_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+dpm($items, 'items');
+  $settings = $display['settings'];
+  $element = array();
+
+  switch ($display['type']) {
+    case 'availibility_field_default':
+dpm('Got here');
+      if (!empty($settings['use_widget_handlers'])) {
+        $handlers = $instance['widget']['settings']['format_handlers'];
+      }
+      else {
+        $handlers = $settings['format_handlers'];
+      }        
+      
+      $element['availibility'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Availibility Info'),
+        '#attributes' => array('class' => array('availibility')),
+        '#weight' => 1,
+        '#collapsible' => FALSE,
+        '#collapsed' => FALSE,
+      );
+      $element['availibility']['available'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Available to go out'),
+        '#checked' => $items['availibility']['available'] ? 'checked' : '',
+        '#disabled' => TRUE,
+        '#attributes' => array('class' => array('availibility-available-view')),
+        '#weight' => 2,
+      );
+      $element['availibility']['active'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Active'),
+        '#checked' => !empty($items['availibility']['active']) ? 'checked' : '',
+        '#attributes' => array('class' => array('availibility-active-view')),
+        '#weight' => 3,
+      );
+      $element['availibility']['no_morning_talks'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Available for morning talks (before noon)'),
+        '#checked' => !empty($items['availibility']['no_morning_talks']) ? 'checked' : '',
+        '#attributes' => array('class' => array('availibility-no-morning-talks-view')),
+        '#weight' => 4,
+      );
+      $element['availibility']['no_midday_talks'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Available for morning talks (between noon and 3:00pm)'),
+        '#checked' => !empty($items['availibility']['no_midday_talks']) ? 'checked' : '',
+        '#attributes' => array('class' => array('availibility-no-midday-talks-view')),
+        '#weight' => 5,
+      );
+      $element['availibility']['no_evening_talks'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Available for morning talks (after 3:00pm)'),
+        '#checked' => !empty($items['availibility']['no_evening_talks']) ? 'checked' : '',
+        '#attributes' => array('class' => array('availibility-no-evening-talks-view')),
+        '#weight' => 6,
+      );
+  
+      break;      
+  }
+
+dpm($element, 'element');
+  return $element;
+}
+
+/**
+ * Callback to alter the property info of availibility fields.
+ */
+function availibility_field_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
+  $name = $field['field_name'];
+  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$name];
+
+  $property['type'] = ($field['cardinality'] != 1) ? 'list<availibility_field>' : 'availibility_field';
+  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
+  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
+  $property['auto creation'] = 'addressfield_default_values';
+  $property['property info'] = availibility_field_data_property_info();
+
+  unset($property['query callback']);
+}
+
+/**
+ * Defines info for the properties of the availibility field data structure.
+ */
+function availibility_field_data_property_info($name = NULL) {
+  // Build an array of basic property information for the availibility field.
+  $properties = array(
+    'available' => array(
+      'label' => t('Currently going out'),
+    ),
+    'no_morning_talks' => array(
+      'label' => t('No morning talks (before noon)'),
+    ),
+    'no_midday_talks' => array(
+      'label' => t('No midday talks (12:00pm-2:59pm'),
+    ),
+    'no_evening_talks' => array(
+      'label' => t('No evening talks (after 3:00pm'),
+    ),
+    'active' => array(
+      'label' => t('Is active'),
+    ),
+  );
+
+  // Add the default values for each of the availibility field properties.
+  foreach ($properties as $key => &$value) {
+    $value += array(
+      'description' => !empty($name) ? t('!label of field %name', array('!label' => $value['label'], '%name' => $name)) : '',
+      'type' => 'text',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+    );
+  }
+
+  return $properties;
+}
+
+/**
+ * Implements hook_field_widget_info()
+ */
+function availibility_field_field_widget_info() {
+  $widgets = array();
+
+  $widgets['availibility_field_standard'] = array(
+    'label' => t('Availibility form'),
+    'field types' => array('availibility_field'),
+    'settings' => array(
+      'format_handlers' => array('availibility'),
+    ),
+  );
+
+  return $widgets;
+}
+
+/**
+ * Implements hook_field_widget_form()
+ */
+function availibility_field_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  //drupal_add_css(drupal_get_path('module', 'availibility_field') . '/css/availibility_field.css');
+  $settings = $instance['widget']['settings'];
+
+  // Generate a specific key used to identify this element to restore a default
+  // value upon AJAX submission regardless of where this element is in the
+  // $form array.
+  $element_key = implode('|', array($element['#entity_type'], $element['#bundle'], $element['#field_name'], $element['#language'], $element['#delta']));
+
+  // Store the key in the element array as a value so it can be easily retrieved
+  // in context in the $form_state['values'] array in the element validator.
+  $element['element_key'] = array(
+    '#type' => 'value',
+    '#value' => $element_key,
+  );
+
+  // Add the form elements for the standard widget.
+  if ($instance['widget']['type'] == 'availibility_field_standard') {
+    // Generate the address form.
+    $element['availibility'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Availibility Info'),
+      '#attributes' => array('class' => array('availibility')),
+      '#weight' => 1,
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+    );
+    $element['availibility']['available'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Available to go out'),
+      '#default_value' => !empty($items['availibility']['available']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('availibility-available')),
+      '#weight' => 2,
+    );
+    $element['availibility']['active'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Active'),
+      '#default_value' => !empty($items['availibility']['active']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('availibility-active')),
+      '#weight' => 3,
+    );
+    $element['availibility']['no_morning_talks'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Available for morning talks (before noon)'),
+      '#default_value' => !empty($items['availibility']['no_morning_talks']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('availibility-no-morning-talks')),
+      '#weight' => 4,
+    );
+    $element['availibility']['no_midday_talks'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Available for morning talks (between noon and 3:00pm)'),
+      '#default_value' => !empty($items['availibility']['no_midday_talks']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('availibility-no-midday-talks')),
+      '#weight' => 5,
+    );
+    $element['availibility']['no_evening_talks'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Available for morning talks (after 3:00pm)'),
+      '#default_value' => !empty($items['availibility']['no_evening_talks']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('availibility-no-evening-talks')),
+      '#weight' => 6,
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function availibility_field_field_is_empty($item, $field) {
+  // We do not need to check for empty values.
+  return false;
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function availibility_field_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] == 'availibility_field') {
+    foreach ($items as $delta => &$item) {
+      $new_item = array(
+        'available' => $item['availibility']['available'],
+        'active' => $item['availibility']['active'],
+        'no_morning_talks' => $item['availibility']['no_morning_talks'],
+        'no_midday_talks' => $item['availibility']['no_midday_talks'],
+        'no_evening_talks' => $item['availibility']['no_evening_talks'],
+      );
+    }
+    $item = $new_item;
+  }
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function availibility_field_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  if ($field['type'] == 'availibility_field') {
+    foreach ($items as $delta => &$item) {
+      $new_item = array(
+        'availibility' => array(
+          'available' => $item[0]['available'],
+          'active' => $item[0]['active'],
+          'no_morning_talks' => $item[0]['no_morning_talks'],
+          'no_midday_talks' => $item[0]['no_midday_talks'],
+          'no_evening_talks' => $item[0]['no_evening_talks'],
+        ),
+      );
+    }
+    $item = $new_item;
+  }
+}
