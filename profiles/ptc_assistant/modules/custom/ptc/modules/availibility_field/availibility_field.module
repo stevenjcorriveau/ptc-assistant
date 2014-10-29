@@ -40,13 +40,11 @@ function availibility_field_field_formatter_info() {
  * Implements hook_field_formatter_view().
  */
 function availibility_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-dpm($items, 'items');
   $settings = $display['settings'];
   $element = array();
 
   switch ($display['type']) {
     case 'availibility_field_default':
-dpm('Got here');
       if (!empty($settings['use_widget_handlers'])) {
         $handlers = $instance['widget']['settings']['format_handlers'];
       }
@@ -102,7 +100,6 @@ dpm('Got here');
       break;      
   }
 
-dpm($element, 'element');
   return $element;
 }
 
