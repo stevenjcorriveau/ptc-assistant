@@ -1,0 +1,4 @@
+name = Responsibility Field
+description = Responsibility field with widget.  Allows entry of various congregation responsibilities.
+core = 7.x
+package = PTC

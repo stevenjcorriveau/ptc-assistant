@@ -1,0 +1,419 @@
+<?php
+
+/**
+ * Implements hook_field_info()
+ */
+function responsibility_field_field_info() {
+  $fields = array();
+
+  $fields['responsibility_field'] = array(
+    'label' => t('Responsibility Information'),
+    'description' => t('A field type used for storing responsibility information.'),
+    'settings' => array(),
+    'instance_settings' => array(),
+    'default_widget' => 'responsibility_field_standard',
+    'default_formatter' => 'responsibility_field_default',
+    'property_type' => 'responsibility_field',
+    'property_callbacks' => array('responsibility_field_property_info_callback'),
+  );
+
+  return $fields;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function responsibility_field_field_formatter_info() {
+  return array(
+    'responsibility_field_default' => array(
+      'label' => t('Default'),
+      'field types' => array('responsibility_field'),
+      'settings' => array(
+        'use_widget_handlers' => 1,
+        'format_handlers' => array('responsibility'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function responsibility_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
+  $element = array();
+  
+  switch ($items['responsibility']['elder_ms']) {
+    case 0:
+      $appointment = 'Not appointed';
+      break;
+    case 1:
+      $appointment = 'Ministerial Servant';
+      break;
+    case 2:
+      $appointment = 'Elder';
+      break;
+  }
+
+  switch ($display['type']) {
+    case 'responsibility_field_default':
+      if (!empty($settings['use_widget_handlers'])) {
+        $handlers = $instance['widget']['settings']['format_handlers'];
+      }
+      else {
+        $handlers = $settings['format_handlers'];
+      }  
+      
+      $element['responsibility'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Responsibility Info'),
+        '#attributes' => array('class' => array('responsibility-view')),
+        '#weight' => 1,
+        '#collapsible' => FALSE,
+        '#collapsed' => FALSE,
+      );
+      $element['responsibility']['elder_ms'] = array(
+        '#type' => 'markup',
+        '#markup' => '<div>Appointment:  ' . $appointment . '</div>',
+        '#attributes' => array('class' => array('responsibility-elder_ms-view')),
+        '#weight' => 2,
+      );
+      $element['responsibility']['ptc'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('PTC'),
+        '#checked' => !empty($items['responsibility']['ptc']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-ptc-view')),
+        '#weight' => 3,
+      );
+      $element['responsibility']['cobe'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('COBE'),
+        '#checked' => !empty($items['responsibility']['cobe']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-cobe-view')),
+        '#weight' => 4,
+      );
+      $element['responsibility']['sec'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Secretary'),
+        '#checked' => !empty($items['responsibility']['sec']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-sec-view')),
+        '#weight' => 5,
+      );
+      $element['responsibility']['so'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Service Overseer'),
+        '#checked' => !empty($items['responsibility']['so']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-so-view')),
+        '#weight' => 6,
+      );
+      $element['responsibility']['wt_conductor'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('WT Conductor'),
+        '#checked' => !empty($items['responsibility']['wt_conductor']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-wt-conductor-view')),
+        '#weight' => 7,
+      );
+      $element['responsibility']['outgoing_sp'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Outgoing Speaker'),
+        '#checked' => !empty($items['responsibility']['outgoing_sp']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-outgoing-sp-view')),
+        '#weight' => 8,
+      );
+      $element['responsibility']['outgoing_ms'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Outgoing Servant'),
+        '#checked' => !empty($items['responsibility']['outgoing_ms']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-outgoing-ms-view')),
+        '#weight' => 9,
+      );
+      $element['responsibility']['chairman'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Chairman'),
+        '#checked' => !empty($items['responsibility']['chairman']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-chairman-view')),
+        '#weight' => 10,
+      );
+      $element['responsibility']['wt_reader'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('WT Reader'),
+        '#checked' => !empty($items['responsibility']['wt_reader']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-wt-reader-view')),
+        '#weight' => 11,
+      );
+      $element['responsibility']['rbc'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('RBC'),
+        '#checked' => !empty($items['responsibility']['rbc']) ? 'checked' : '',
+        '#attributes' => array('class' => array('responsibility-rbc-view')),
+        '#weight' => 12,
+      );
+      
+      break;      
+  }
+
+  return $element;
+}
+
+/**
+ * Callback to alter the property info of responsibility fields.
+ */
+function responsibility_field_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
+  $name = $field['field_name'];
+  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$name];
+
+  $property['type'] = ($field['cardinality'] != 1) ? 'list<responsibility_field>' : 'responsibility_field';
+  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
+  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
+  $property['auto creation'] = 'addressfield_default_values';
+  $property['property info'] = responsibility_field_data_property_info();
+
+  unset($property['query callback']);
+}
+
+/**
+ * Defines info for the properties of the responsibility field data structure.
+ */
+function responsibility_field_data_property_info($name = NULL) {
+  // Build an array of basic property information for the responsibility field.
+  $properties = array(
+    'elder_ms' => array(
+      'label' => t('Whether this speaker is an elder or ministerial servant'),
+    ),
+    'ptc' => array(
+      'label' => t('Whether this speaker is the ptc'),
+    ),
+    'cobe' => array(
+      'label' => t('Whether this speaker is the coordinator'),
+    ),
+    'sec' => array(
+      'label' => t('Whether this speaker is the secretary'),
+    ),
+    'so' => array(
+      'label' => t('Whether this speaker is the service overseer'),
+    ),
+    'wt_conductor' => array(
+      'label' => t('Whether this speaker is the WT conductor'),
+    ),
+    'outgoing_sp' => array(
+      'label' => t('Whether this speaker is an outgoing speaker.'),
+    ),
+    'outgoing_ms' => array(
+      'label' => t('Whether this speaker is an outgoing servant'),
+    ),
+    'chairman' => array(
+      'label' => t('Whether this speaker is a chairman'),
+    ),
+    'wt_reader' => array(
+      'label' => t('Whether this speaker is a WT reader'),
+    ),
+    'rbc' => array(
+      'label' => t('Whether this speaker is on the RBC'),
+    ),
+  );
+
+  // Add the default values for each of the responsibility field properties.
+  foreach ($properties as $key => &$value) {
+    $value += array(
+      'description' => !empty($name) ? t('!label of field %name', array('!label' => $value['label'], '%name' => $name)) : '',
+      'type' => 'text',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+    );
+  }
+
+  return $properties;
+}
+
+/**
+ * Implements hook_field_widget_info()
+ */
+function responsibility_field_field_widget_info() {
+  $widgets = array();
+
+  $widgets['responsibility_field_standard'] = array(
+    'label' => t('Responsibility form'),
+    'field types' => array('responsibility_field'),
+    'settings' => array(
+      'format_handlers' => array('responsibility'),
+    ),
+  );
+
+  return $widgets;
+}
+
+/**
+ * Implements hook_field_widget_form()
+ */
+function responsibility_field_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  drupal_add_css(drupal_get_path('module', 'responsibility_field') . '/css/responsibility_field.css');
+  $settings = $instance['widget']['settings'];
+
+  // Generate a specific key used to identify this element to restore a default
+  // value upon AJAX submission regardless of where this element is in the
+  // $form array.
+  $element_key = implode('|', array($element['#entity_type'], $element['#bundle'], $element['#field_name'], $element['#language'], $element['#delta']));
+
+  // Store the key in the element array as a value so it can be easily retrieved
+  // in context in the $form_state['values'] array in the element validator.
+  $element['element_key'] = array(
+    '#type' => 'value',
+    '#value' => $element_key,
+  );
+  
+  $elder_ms = array(
+    2 => t('Elder'),
+    1 => t('MS'),
+    0 => t('Local only'),
+  );
+
+  // Add the form elements for the standard widget.
+  if ($instance['widget']['type'] == 'responsibility_field_standard') {
+    // Generate the address form.
+    $element['responsibility'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Responsibility Info'),
+      '#attributes' => array('class' => array('responsibility')),
+      '#weight' => 1,
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+    );
+    $element['responsibility']['elder_ms'] = array(
+      '#type' => 'radios',
+      '#title' => t('Appointment'),
+      '#default_value' => $items['responsibility']['elder_ms'],
+      '#options' => $elder_ms,
+      '#attributes' => array('class' => array('responsibility-elder-ms')),
+      '#weight' => 2,
+    );
+    $element['responsibility']['ptc'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('PTC'),
+      '#default_value' => !empty($items['responsibility']['ptc']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-ptc')),
+      '#weight' => 3,
+    );
+    $element['responsibility']['cobe'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('COBE'),
+      '#default_value' => !empty($items['responsibility']['cobe']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-cobe')),
+      '#weight' => 4,
+    );
+    $element['responsibility']['sec'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Secretary'),
+      '#default_value' => !empty($items['responsibility']['sec']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-sec')),
+      '#weight' => 5,
+    );
+    $element['responsibility']['so'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Service Overseer'),
+      '#default_value' => !empty($items['responsibility']['so']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-so')),
+      '#weight' => 6,
+    );
+    $element['responsibility']['wt_conductor'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('WT Conductor'),
+      '#default_value' => !empty($items['responsibility']['wt_conductor']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-wt-conductor')),
+      '#weight' => 7,
+    );
+    $element['responsibility']['outgoing_sp'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Outgoing Speaker'),
+      '#default_value' => !empty($items['responsibility']['outgoing_sp']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-outgoing-sp')),
+      '#weight' => 8,
+    );
+    $element['responsibility']['outgoing_ms'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Outgoing Servant'),
+      '#default_value' => !empty($items['responsibility']['outgoing_ms']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-outgoing-ms')),
+      '#weight' => 9,
+    );
+    $element['responsibility']['chairman'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Chairman'),
+      '#default_value' => !empty($items['responsibility']['chairman']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-chairman')),
+      '#weight' => 10,
+    );
+    $element['responsibility']['wt_reader'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('WT Reader'),
+      '#default_value' => !empty($items['responsibility']['wt_reader']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-wt-reader')),
+      '#weight' => 11,
+    );
+    $element['responsibility']['rbc'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('RBC'),
+      '#default_value' => !empty($items['responsibility']['rbc']) ? TRUE : FALSE,
+      '#attributes' => array('class' => array('responsibility-rbc')),
+      '#weight' => 12,
+    );
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function responsibility_field_field_is_empty($item, $field) {
+  // We do not need to check for empty values.
+  return false;
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function responsibility_field_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] == 'responsibility_field') {
+    foreach ($items as $delta => &$item) {
+      $new_item = array(
+        'elder_ms' => $item['responsibility']['elder_ms'],
+        'ptc' => $item['responsibility']['ptc'],
+        'cobe' => $item['responsibility']['cobe'],
+        'sec' => $item['responsibility']['sec'],
+        'so' => $item['responsibility']['so'],
+        'wt_conductor' => $item['responsibility']['wt_conductor'],
+        'outgoing_sp' => $item['responsibility']['outgoing_sp'],
+        'outgoing_ms' => $item['responsibility']['outgoing_ms'],
+        'chairman' => $item['responsibility']['chairman'],
+        'wt_reader' => $item['responsibility']['wt_reader'],
+        'rbc' => $item['responsibility']['rbc'],
+      );
+    }
+    $item = $new_item;
+  }
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function responsibility_field_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  if ($field['type'] == 'responsibility_field') {
+    foreach ($items as $delta => &$item) {
+      $new_item = array(
+        'responsibility' => array(
+          'elder_ms' => $item[0]['elder_ms'],
+          'ptc' => $item[0]['ptc'],
+          'cobe' => $item[0]['cobe'],
+          'sec' => $item[0]['sec'],
+          'so' => $item[0]['so'],
+          'wt_conductor' => $item[0]['wt_conductor'],
+          'outgoing_sp' => $item[0]['outgoing_sp'],
+          'outgoing_ms' => $item[0]['outgoing_ms'],
+          'chairman' => $item[0]['chairman'],
+          'wt_reader' => $item[0]['wt_reader'],
+          'rbc' => $item[0]['rbc'],
+        ),
+      );
+    }
+    $item = $new_item;
+  }
+}

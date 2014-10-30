@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * Implements hook_field_schema()
+ */
+function responsibility_field_field_schema() {
+  $columns = array(
+    'elder_ms' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is an elder(2) or ministerial servant(1) or not (0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'ptc' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is the ptc(1) or not(0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'cobe' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is the coordinator(1) or not(0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'sec' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is the secretary(1) or not(0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'so' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is the service overseer(1) or not(0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'wt_conductor' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is the WT conductor(1) or not(0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'outgoing_sp' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is an outgoing speaker(1) or not(0).  Prevents brother from appearing in speaker lists if not currently outgoing.',
+      'not null'    => FALSE,
+      'default'     => 1,
+    ),
+    'outgoing_ms' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is an outgoing servant(1) or not(0).  Prevents brother from appearing in speaker lists if not currently outgoing.',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'chairman' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is a chairman(1) or not(0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'wt_reader' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is a WT reader(1) or not(0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+    'rbc' => array(
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'description' => 'Whether this speaker is on the RBC(1) or not(0)',
+      'not null'    => FALSE,
+      'default'     => 0,
+    ),
+  );
+
+  return array(
+    'columns' => $columns,
+  );
+}
+
